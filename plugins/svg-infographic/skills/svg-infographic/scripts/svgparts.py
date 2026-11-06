@@ -284,8 +284,9 @@ _NO_LINE_END = set("（「『【〔〈《")
 
 
 def _tokens(s):
-    """Split text into units that are never broken: an ASCII word, a run of spaces, or one other character."""
-    return re.findall(r"[ ]+|[\x21-\x7E]+|.", s)
+    """Split text into units that are never broken: an ASCII word, a run of spaces, a katakana word, or one other
+    character."""
+    return re.findall(r"[ ]+|[\x21-\x7E]+|[\u30A1-\u30FA\u30FC]+|.", s)
 
 
 # Particles after which a Japanese line usually breaks well (the end of a phrase).
@@ -298,9 +299,9 @@ def _is_hiragana(ch):
 
 def wrap(s: str, max_width, size: float = 13):
     """Split s into lines that fit max_width (estimated with text_width). English breaks at spaces.
-    Japanese breaks between characters, preferring a break after punctuation or after a particle that is
-    followed by kanji, katakana, or ASCII (usually the end of a phrase), and never puts 、。」 etc. at the start
-    of a line.
+    Japanese breaks between characters but never inside a katakana word. It prefers a break after punctuation,
+    then after a particle, then where hiragana gives way to kanji or katakana (usually the end of a phrase). It
+    avoids starting a line with hiragana and never starts one with 、。」 etc.
     A single unit wider than max_width is kept on its own line; the overflow check reports it."""
     toks = _tokens(s)
     lines, cur = [], []
@@ -311,10 +312,24 @@ def wrap(s: str, max_width, size: float = 13):
     def can_break(prev, nxt):
         return not (nxt[0] in _NO_LINE_START or prev[-1] in _NO_LINE_END)
 
-    def good_break(prev, nxt):
-        if nxt[0] == " " or prev[-1] == " " or prev[-1] in "、。，,・）」』】":
-            return True
-        return prev[-1] in _PARTICLES and not _is_hiragana(nxt[0])
+    def rank(cand, i, fill):
+        """How good a break before cand[i] is. 2: at a space before a word, or after punctuation on a line at least
+        70% full. 1: after a particle, or after punctuation on a shorter line. 0.5: where hiragana ends and kanji,
+        katakana, or ASCII starts. 0: anywhere else, including any break that would start a line with hiragana
+        (a particle or the rest of a word)."""
+        prev = cand[i - 1][-1]
+        nxt = next((ch for tok in cand[i:] for ch in tok if ch != " "), "")
+        if prev in "、。，,・":
+            return 2 if fill >= 0.7 else 1
+        if _is_hiragana(nxt):
+            return 0
+        if prev == " " or cand[i][0] == " ":
+            return 2
+        if prev in "）」』】":
+            return 2 if fill >= 0.7 else 1
+        if prev in _PARTICLES:
+            return 1
+        return 0.5 if _is_hiragana(prev) else 0
 
     for t in toks:
         if not cur:
@@ -324,19 +339,23 @@ def wrap(s: str, max_width, size: float = 13):
         if width(cur + [t]) <= max_width:
             cur.append(t)
             continue
-        # Choose where to break: the last good break that keeps the line at least half full, else the last allowed one.
+        # Choose where to break: among breaks that keep the line at least half full, the best-ranked one (the last
+        # of those if several share the rank). Without one, a ranked break on a shorter line is still better than
+        # splitting a word or starting a line with hiragana; the last allowed break is the final fallback.
         cand = cur + [t]
-        best = None
+        best, best_rank, short, short_rank, last_allowed = None, 0, None, 0, None
         for i in range(len(cand) - 1, 0, -1):
             if width(cand[:i]) > max_width or not can_break(cand[i - 1], cand[i]):
                 continue
-            if best is None:
-                best = i
-            if good_break(cand[i - 1], cand[i]) and width(cand[:i]) >= max_width * 0.5:
-                best = i
-                break
-        if best is None:
-            best = len(cur)
+            if last_allowed is None:
+                last_allowed = i
+            fill = width(cand[:i]) / max_width
+            r = rank(cand, i, fill)
+            if r > best_rank and fill >= 0.5:
+                best, best_rank = i, r
+            if r > short_rank:
+                short, short_rank = i, r
+        best = best or short or last_allowed or len(cur)
         lines.append("".join(cand[:best]).strip(" "))
         cur = [x for x in cand[best:]]
         while cur and not cur[0].strip(" "):

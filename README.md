@@ -1,5 +1,7 @@
 # svg-infographic
 
+[日本語](README.ja.md)
+
 A [Claude Code](https://docs.claude.com/en/docs/claude-code) skill that draws business infographics as a single slide-ready SVG. Claude decides the message, draws the figure with a parts library, measures it in a headless browser with the real fonts, and fixes problems before handing over the SVG and PNG.
 
 ![Claude draws the slide, then measures it before you see it](examples/intro.png)
