@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540" font-family="'Hiragino Sans', 'Yu Gothic UI', 'Noto Sans JP', 'Noto Sans CJK JP', system-ui, sans-serif" role="img" aria-label="Order of messages between the patron, web app, API, database, and email service">
+<title>How a reservation is stored</title>
+<defs><filter id="sh" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.07"/></filter></defs>
+<rect width="960" height="540" fill="#F8FAFC"/>
+<text x="24.0" y="42.0" font-size="20" font-weight="600" fill="#1E293B" text-anchor="start" data-maxw="692.0">Only the reservation API writes to the database</text>
+<text x="936.0" y="42.0" font-size="12" font-weight="400" fill="#64748B" text-anchor="end">Sequence diagram</text>
+<rect x="24.0" y="70.0" width="172.8" height="44.0" rx="10" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.2" data-part="box"/>
+<text x="110.4" y="96.7" font-size="13" font-weight="600" fill="#1E293B" text-anchor="middle" data-maxw="156.8">Patron</text>
+<path d="M110.4,114.0 V378.0" stroke="#E2E8F0" stroke-width="1.5" stroke-dasharray="4 4"/>
+<rect x="208.8" y="70.0" width="172.8" height="44.0" rx="10" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.2" data-part="box"/>
+<text x="295.2" y="89.0" font-size="13" font-weight="600" fill="#1E293B" text-anchor="middle" data-maxw="156.8">Web app</text>
+<text x="295.2" y="106.0" font-size="12" font-weight="400" fill="#64748B" text-anchor="middle" data-maxw="156.8">browser</text>
+<path d="M295.2,114.0 V378.0" stroke="#E2E8F0" stroke-width="1.5" stroke-dasharray="4 4"/>
+<rect x="393.6" y="70.0" width="172.8" height="44.0" rx="10" fill="#FFFFFF" stroke="#2563EB" stroke-width="1.2" data-part="box"/>
+<text x="480.0" y="96.7" font-size="13" font-weight="600" fill="#2563EB" text-anchor="middle" data-maxw="156.8">Reservation API</text>
+<path d="M480.0,114.0 V378.0" stroke="#E2E8F0" stroke-width="1.5" stroke-dasharray="4 4"/>
+<rect x="578.4" y="70.0" width="172.8" height="44.0" rx="10" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.2" data-part="box"/>
+<text x="664.8" y="96.7" font-size="13" font-weight="600" fill="#1E293B" text-anchor="middle" data-maxw="156.8">Database</text>
+<path d="M664.8,114.0 V378.0" stroke="#E2E8F0" stroke-width="1.5" stroke-dasharray="4 4"/>
+<rect x="763.2" y="70.0" width="172.8" height="44.0" rx="10" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.2" data-part="box"/>
+<text x="849.6" y="96.7" font-size="13" font-weight="600" fill="#1E293B" text-anchor="middle" data-maxw="156.8">Email service</text>
+<path d="M849.6,114.0 V378.0" stroke="#E2E8F0" stroke-width="1.5" stroke-dasharray="4 4"/>
+<path d="M116.4,144.0 L289.2,144.0 M283.4,148.0 L289.2,144.0 L283.4,140.0" stroke="#94A3B8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none" data-part="arrow"/>
+<rect x="142.8" y="125.0" width="120.0" height="15" rx="3" fill="#F8FAFC"/>
+<text x="202.8" y="137.0" font-size="12" font-weight="400" fill="#64748B" text-anchor="middle" data-maxw="912.0" data-online="1">1. Choose a book</text>
+<path d="M301.2,174.0 L474.0,174.0 M468.2,178.0 L474.0,174.0 L468.2,170.0" stroke="#94A3B8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none" data-part="arrow"/>
+<rect x="304.5" y="155.0" width="166.3" height="15" rx="3" fill="#F8FAFC"/>
+<text x="387.6" y="167.0" font-size="12" font-weight="400" fill="#64748B" text-anchor="middle" data-maxw="912.0" data-online="1">2. Request a reservation</text>
+<path d="M486.0,204.0 L658.8,204.0 M653.0,208.0 L658.8,204.0 L653.0,200.0" stroke="#2563EB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none" data-part="arrow"/>
+<rect x="504.5" y="185.0" width="135.8" height="15" rx="3" fill="#F8FAFC"/>
+<text x="572.4" y="197.0" font-size="12" font-weight="500" fill="#2563EB" text-anchor="middle" data-maxw="912.0" data-online="1">3. Check availability</text>
+<path d="M486.0,234.0 L658.8,234.0 M653.0,238.0 L658.8,234.0 L653.0,230.0" stroke="#2563EB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none" data-part="arrow"/>
+<rect x="493.6" y="215.0" width="157.5" height="15" rx="3" fill="#F8FAFC"/>
+<text x="572.4" y="227.0" font-size="12" font-weight="500" fill="#2563EB" text-anchor="middle" data-maxw="912.0" data-online="1">4. Save the reservation</text>
+<path d="M474.0,264.0 L301.2,264.0 M307.0,260.0 L301.2,264.0 L307.0,268.0" stroke="#94A3B8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none" data-part="arrow"/>
+<rect x="327.3" y="245.0" width="120.6" height="15" rx="3" fill="#F8FAFC"/>
+<text x="387.6" y="257.0" font-size="12" font-weight="400" fill="#64748B" text-anchor="middle" data-maxw="912.0" data-online="1">5. Queue position</text>
+<path d="M289.2,294.0 L116.4,294.0 M122.2,290.0 L116.4,294.0 L122.2,298.0" stroke="#94A3B8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none" data-part="arrow"/>
+<rect x="133.2" y="275.0" width="139.3" height="15" rx="3" fill="#F8FAFC"/>
+<text x="202.8" y="287.0" font-size="12" font-weight="400" fill="#64748B" text-anchor="middle" data-maxw="912.0" data-online="1">6. Show the position</text>
+<path d="M486.0,324.0 L843.6,324.0 M837.8,328.0 L843.6,324.0 L837.8,320.0" stroke="#94A3B8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none" data-part="arrow"/>
+<rect x="581.1" y="305.0" width="167.4" height="15" rx="3" fill="#F8FAFC"/>
+<text x="664.8" y="317.0" font-size="12" font-weight="400" fill="#64748B" text-anchor="middle" data-maxw="912.0" data-online="1">7. Send the confirmation</text>
+<path d="M843.6,354.0 L116.4,354.0 M122.2,350.0 L116.4,354.0 L122.2,358.0" stroke="#94A3B8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none" data-part="arrow"/>
+<rect x="407.3" y="335.0" width="145.4" height="15" rx="3" fill="#F8FAFC"/>
+<text x="480.0" y="347.0" font-size="12" font-weight="400" fill="#64748B" text-anchor="middle" data-maxw="912.0" data-online="1">8. Confirmation email</text>
+<text x="24.0" y="412.0" font-size="15" font-weight="600" fill="#1E293B" text-anchor="start" data-maxw="912.0">Why the web app does not write directly</text>
+<circle cx="27.0" cy="435.4" r="2.5" fill="#94A3B8"/>
+<text x="36.0" y="440.0" font-size="13" font-weight="400" fill="#1E293B" text-anchor="start" data-maxw="900.0">The API is the only place that decides the queue order, so two patrons never get the same position</text>
+<circle cx="27.0" cy="461.4" r="2.5" fill="#94A3B8"/>
+<text x="36.0" y="466.0" font-size="13" font-weight="400" fill="#1E293B" text-anchor="start" data-maxw="900.0">Changing the database affects only the API, not the web app</text>
+</svg>

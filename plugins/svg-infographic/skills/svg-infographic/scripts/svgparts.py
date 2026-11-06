@@ -587,6 +587,72 @@ class Slide:
             if i < len(items) - 1:
                 self.line(x + 12, cy + 16, x + 12, cy + step - 16, C.LINE, 2)
 
+    # ---- sequences, rules, action lists ----
+    def sequence(self, y, actors, messages, step=30, head_h=44, left=None, right=None, numbered=True):
+        """Sequence diagram. actors = [(key, name, sub or None, accent or None), ...] are placed in equal columns
+        with a dashed lifeline below each. messages = [(from_key, to_key, label, accent or None), ...] are drawn
+        top to bottom, one row per step, with the label centered above the arrow on a background fill.
+        With numbered=True, labels are prefixed "1. ", "2. ", and so on.
+        Returns (x of each actor by key, y below the last message)."""
+        n = len(actors)
+        w, xs = self.columns(n, 12, left, right)
+        cx = {key: x + w / 2 for x, (key, *_rest) in zip(xs, actors)}
+        bottom = y + head_h + 24 + step * len(messages)
+        for x, (key, name, sub, accent) in zip(xs, actors):
+            self.box(x, y, w, head_h, name, sub=sub, color=accent or C.TEXT, border=accent or C.LINE)
+            self.raw(f'<path d="M{cx[key]:.1f},{y + head_h:.1f} V{bottom:.1f}" stroke="{C.LINE}" '
+                     f'stroke-width="1.5" stroke-dasharray="4 4"/>')
+        for i, (a, b, label, accent) in enumerate(messages):
+            if a == b:
+                raise ValueError(f"sequence(): message {i + 1} goes from {a!r} to itself")
+            yy = y + head_h + 30 + i * step
+            x1, x2 = cx[a], cx[b]
+            d = 1 if x2 > x1 else -1
+            color = accent or C.ARROW
+            self.connector(x1 + 6 * d, yy, x2 - 6 * d, yy, color)
+            text = f"{i + 1}. {label}" if numbered else label
+            tw = text_width(text, 12)
+            mid = (x1 + x2) / 2
+            self.raw(f'<rect x="{mid - tw / 2 - 4:.1f}" y="{yy - 19:.1f}" width="{tw + 8:.1f}" height="15" rx="3" '
+                     f'fill="{C.BG}"/>')
+            self.text(mid, yy - 7, text, 12, accent or C.SUB, 500 if accent else 400, "middle",
+                      max_width=self.W - 2 * self.M, on_line=True)
+        return cx, bottom
+
+    def rule_row(self, x, y, w, cond, result, cond_sub=None, result_sub=None, color=C.PRIMARY, label="Yes",
+                 split=0.42, h=64):
+        """One "if this, then that" row: a card with the condition, an arrow with a label, and a card with the
+        result in the accent color. split is the share of w given to the condition card. Returns y below the row."""
+        gap = max(64, text_width(label, 12) + 40)
+        cw = (w - gap) * split
+        rw = w - gap - cw
+        for cx_, cww, title, sub, accent in [(x, cw, cond, cond_sub, None), (x + cw + gap, rw, result, result_sub, color)]:
+            self.card(cx_, y, cww, h, accent or C.LINE)
+            ty = y + (27 if sub else h / 2 + 5)
+            self.text(cx_ + self.PAD, ty, title, 14, accent or C.TEXT, 600, max_width=cww - 2 * self.PAD)
+            if sub:
+                self.text(cx_ + self.PAD, y + 48, sub, 12, C.SUB, max_width=cww - 2 * self.PAD)
+        self.connector(x + cw + 8, y + h / 2, x + cw + gap - 8, y + h / 2, label=label)
+        return y + h
+
+    def action_list(self, y, items, x=None, w=None, h=46, gap=6, title_w=None):
+        """Rows of follow-up actions: title, description, and status.
+        items = [(title, description, status, status_color), ...]. title_w is the width of the title column
+        (by default the widest title plus 40px). Returns y below the last row."""
+        x = self.M if x is None else x
+        w = self.W - 2 * self.M if w is None else w
+        if title_w is None:
+            title_w = max(text_width(t, 14) for t, *_ in items) + 40 + self.PAD
+        status_w = max(text_width(st, 12) for _, _, st, _ in items) + 14 + self.PAD
+        for i, (title, desc, st, color) in enumerate(items):
+            ry = y + i * (h + gap)
+            self.card(x, ry, w, h)
+            self.text(x + self.PAD, ry + h / 2 + 5, title, 14, C.TEXT, 600, max_width=title_w - self.PAD - 12)
+            self.text(x + title_w, ry + h / 2 + 5, desc, 12.5, C.SUB,
+                      max_width=w - title_w - status_w - 16)
+            self.status(x + w - status_w, ry + h / 2 + 5, st, color)
+        return y + len(items) * (h + gap) - gap
+
     # ---- output ----
     def save(self, path, quiet=False):
         """Write the SVG and print the estimate-based warnings (unless quiet)."""

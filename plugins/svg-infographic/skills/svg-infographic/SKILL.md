@@ -71,6 +71,9 @@ s.render("/path/out.png")   # also writes /path/out.svg and runs check()
 | `sketch(x, y, w, h, xlabels, ylabel)` | Frame for a schematic. Draw with the returned `line` / `area` / `label` in 0–1 coordinates. Writes "Schematic (not actual values)" automatically |
 | `scale(x, w, v0, v1)` / `band(x1, x2, y, h, color, label)` | A function that maps values to coordinates, and a band showing a time window or range. Use them to build a time-proportional axis |
 | `range_bar(x, y, w, label, lo, hi, vmax, value)` | Horizontal bar from minimum to maximum |
+| `sequence(y, actors, messages)` | Sequence diagram: a box and dashed lifeline per actor, and numbered messages in order. Returns the x of each actor and the y below the last message |
+| `rule_row(x, y, w, cond, result, cond_sub, result_sub, color)` | One "if this, then that" row: condition card, labeled arrow, and result card in the accent color |
+| `action_list(y, items)` | Rows of follow-up actions with a title, description, and status |
 
 Descriptions in `flow`, `chain` / `node`, and `timeline` can be a list of lines or a single string. A string is wrapped to the width of the part, and more than two lines is reported as a warning.
 
@@ -94,6 +97,9 @@ There are 24 icons: `user` `users` `building` `server` `database` `laptop` `ai` 
 
 - **When to use a diagram**
   - Something passes between people, systems, or data, or goes through them in order → `chain` / `node` / `connector`; boundaries of owners or environments → `zone`
+  - The order of requests and responses between several systems is the point (who calls whom, and when) → `sequence`. Use `chain` when each step goes one way to the next
+  - Rules of the form "if this, then do that" → one `rule_row` per rule. Use the decision diagram when the conditions depend on each other
+  - Follow-up actions or a to-do list with status (incident reviews, release checklists) → `action_list`
   - A procedure whose destination depends on a condition ("ACK if out of scope", "NACK on failure", etc.) → decision diagram (`decision` / `box` / `terminal` / `elbow` / `edge_label`). Do not write a procedure with several exits as bullets
   - Behavior changes by category (error categories, etc.) → arrows from category to behavior to result. Draw retries as a loop with `elbow`
   - The point is how a quantity changes over time, or the gap to a limit (backlog, capacity versus load, etc.) → schematic (`sketch`). State in the figure that it is not real data
