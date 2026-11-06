@@ -8,16 +8,20 @@ A [Claude Code](https://docs.claude.com/en/docs/claude-code) skill that draws bu
 |---|---|
 | ![Comparison table example](examples/example-2-compare.png) | ![Incident review example](examples/example-3-incident.png) |
 
-| Sequence diagram |
+| Sequence diagram | Swimlane and before/after |
+|---|---|
+| ![Sequence diagram example](examples/example-4-sequence.png) | ![Swimlane example](examples/example-5-swimlane.png) |
+
+| Roadmap and org chart, with a custom primary color |
 |---|
-| ![Sequence diagram example](examples/example-4-sequence.png) |
+| ![Roadmap example](examples/example-6-roadmap.png) |
 
 All examples are fictional. The script that draws them is [examples/gen_examples.py](examples/gen_examples.py).
 
 ## Features
 
 - **The heading states the conclusion**: "Cause: a Monday spike maxed out the search server's CPU", not "Cause". Each slide carries one message.
-- **Drawn with a parts library**: cards, arrows, tables, timelines, steps, zones, sequence diagrams, rule rows, action lists, icons, and more live in a Python parts library ([svgparts.py](plugins/svg-infographic/skills/svg-infographic/scripts/svgparts.py)). Colors, font sizes, and weights are fixed inside the library, so every figure looks consistent.
+- **Drawn with a parts library**: cards, arrows, tables, timelines, steps, zones, sequence diagrams, swimlanes, before/after cards, org charts, roadmaps, rule rows, action lists, icons, and more live in a Python parts library ([svgparts.py](plugins/svg-infographic/skills/svg-infographic/scripts/svgparts.py)). Colors, font sizes, and weights are fixed inside the library, so every figure looks consistent. Pass a theme to use your own colors.
 - **Checked with real fonts**: after rendering, the library opens the SVG in the browser and measures it. It reports text that overflows or crosses the edge of a card, overlapping text, arrows or lines that cross text, and arrows that enter a box. Claude then looks at the PNG for spacing and balance.
 - **Wraps text**: descriptions can be given as a single string and are wrapped to fit. English breaks at spaces; Japanese breaks after punctuation or particles and follows Japanese line-breaking rules.
 - **No metaphors**: wording such as "fight the fire" or "turbocharge" is rewritten literally, as "respond to the outage" or "halve the processing time".

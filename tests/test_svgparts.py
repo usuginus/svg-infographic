@@ -97,7 +97,25 @@ def gallery():
     d.action_list(y + 20, [("Scale up before opening", "Run 4 servers from 8:30", "Done", C.GREEN),
                            ("Cache search results", "Return cached results for repeated searches", "In progress",
                             C.ORANGE)])
-    return {"gallery-a": a, "gallery-b": b, "gallery-c": c, "gallery-d": d}
+    e = Slide("Parts gallery E", "Swimlanes and before/after")
+    e.header("Parts gallery E: swimlanes and before/after", "svgparts")
+    y = e.swimlane(70, [("p", "Patron"), ("s", "System"), ("d", "Library desk")], [
+        ("p", 0, "Reserve a book", None), ("s", 1, "Assign a copy", C.PRIMARY), ("s", 2, "Send an email", None),
+        ("d", 2, "Set the book aside", None), ("p", 3, "Pick it up", C.GREEN)])
+    e.before_after(y + 28, ["Patrons phone the desk", ("Staff search by hand", True)],
+                   ["Patrons reserve on the web", ("The system assigns a copy", True)])
+
+    f = Slide("Parts gallery F", "Trees, roadmaps, and themes", theme={"PRIMARY": "#7C3AED"})
+    f.header("Parts gallery F: trees, roadmaps, and themes", "svgparts")
+    y = f.tree(70, ("Library", None, [
+        ("Lending", "3 teams", [("Desk", None, [], None), ("Reservations", None, [], C.PRIMARY)], None),
+        ("Collections", None, [("Buying", None, [], None), ("Repair", None, [], None)], None),
+        ("Systems", None, [("Web app", None, [], None)], C.GREEN)], None))
+    f.roadmap(y + 30, ["Q1", "Q2", "Q3", "Q4"], [
+        ("Web app", [(0, 1.5, "Reservations", C.PRIMARY), (2, 4, "Mobile layout", C.GREEN)]),
+        ("Desk", [(1, 1.4, "Self checkout", C.ORANGE)]),
+        ("Systems", [(0.5, 3.5, "Move search to the new server", C.SUB)])])
+    return {"gallery-a": a, "gallery-b": b, "gallery-c": c, "gallery-d": d, "gallery-e": e, "gallery-f": f}
 
 
 class TextWidthTest(unittest.TestCase):
@@ -144,6 +162,27 @@ class DefaultsTest(unittest.TestCase):
         s = Slide("t", "t")
         with self.assertRaises(ValueError):
             s.sequence(70, [("a", "A", None, None), ("b", "B", None, None)], [("a", "a", "loop", None)])
+
+    def test_theme_swaps_colors_and_derives_backgrounds(self):
+        s = Slide("t", "t", theme={"PRIMARY": "#7c3aed"})
+        s.decision(10, 10, 120, 40, "Has a plan?")
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "t.svg")
+            s.save(path, quiet=True)
+            with open(path, encoding="utf-8") as fh:
+                svg = fh.read()
+        self.assertIn("#7C3AED", svg)
+        self.assertNotIn(C.PRIMARY, svg)
+        self.assertNotIn(C.PRIMARY_BG, svg)
+
+    def test_theme_rejects_unknown_roles(self):
+        with self.assertRaises(ValueError):
+            Slide("t", "t", theme={"PURPLE": "#7C3AED"})
+
+    def test_long_box_title_wraps_to_two_lines(self):
+        s = Slide("t", "t")
+        s.box(10, 10, 120, 48, "Set the book aside")
+        self.assertEqual(sum(1 for o in s.out if o.startswith("<text")), 2)
 
     def test_short_arrow_is_reported(self):
         s = Slide("t", "t")

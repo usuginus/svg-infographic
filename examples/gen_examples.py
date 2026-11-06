@@ -108,3 +108,44 @@ s.bullets(s.M, bottom + 62, s.W - 2 * s.M, [
     "Changing the database affects only the API, not the web app",
 ], step=26)
 done(s, "example-4-sequence")
+
+
+# ---- 5. Swimlane ----
+s = Slide("Who handles a reservation", "Swimlane of the patron, the reservation system, and the library desk")
+s.header("Staff touch a reservation only once, to set the book aside", "Swimlane")
+y = s.swimlane(70, [("patron", "Patron"), ("system", "System"), ("desk", "Library desk")], [
+    ("patron", 0, "Reserve online", None),
+    ("system", 1, "Assign a copy", C.PRIMARY),
+    ("system", 2, "Email the patron", None),
+    ("desk", 2, "Set the book aside", C.ORANGE),
+    ("patron", 3, "Pick it up", C.GREEN),
+])
+s.before_after(y + 24, [
+    "Patrons phone or visit the desk",
+    ("Staff search the shelves for a copy", True),
+    ("Staff call the patron when it is ready", True),
+], [
+    "Patrons reserve on the web",
+    ("The system assigns a copy", True),
+    ("The system emails the patron", True),
+])
+done(s, "example-5-swimlane")
+
+
+# ---- 6. Roadmap with a theme ----
+s = Slide("Library systems roadmap", "Plan for the year by team, drawn with a custom primary color",
+          theme={"PRIMARY": "#7C3AED"})
+s.header("Web reservations ship in Q2; search moves after that", "Roadmap")
+s.section(84, "Plan by team")
+y = s.roadmap(100, ["Q1", "Q2", "Q3", "Q4"], [
+    ("Web app", [(0, 1.5, "Web reservations", C.PRIMARY), (2, 4, "Mobile layout", C.GREEN)]),
+    ("Library desk", [(1, 2, "Self checkout", C.ORANGE)]),
+    ("Systems", [(0.5, 2, "Load testing", C.SUB), (2, 3.5, "Move search to the new server", C.PRIMARY)]),
+])
+s.section(y + 40, "Who owns each part")
+s.tree(y + 56, ("Library systems", None, [
+    ("Web app", "Web and mobile", [], C.PRIMARY),
+    ("Library desk", "Desk tools", [], None),
+    ("Systems", "Servers and data", [("Search", None, [], None), ("Database", None, [], None)], None),
+], None), box_h=44, level_gap=28)
+done(s, "example-6-roadmap")
