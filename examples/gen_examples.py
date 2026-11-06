@@ -110,7 +110,10 @@ s.table(s.M, 70, s.W - 2 * s.M, ["Problem", "What it means", "Typical fix"], [16
     ("Arrow enters a box", "An arrow runs into a card it does not point to", "Route it around the card"),
     ("Filled area over text", "A shaded area in a schematic covers a label", "Move the label off the area"),
     ("Outside the canvas", "Text is cut off at the edge of the slide", "Move it inside the margins"),
-], row_h=34, row_icons=[("warning", C.ORANGE)] * 7)
+], row_h=34, row_icons=[("warning", C.ORANGE)] * 7, highlight={0: C.ORANGE})
+s.dot(s.M + 4, 360, C.ORANGE)
+s.text(s.M + 16, 364, "Overflow was the problem found most often while drawing the images in this README", 12, C.SUB,
+       max_width=s.W - 2 * s.M - 16)
 s.section(400, "What is still checked by eye")
 s.rule_row(s.M, 418, s.W - 2 * s.M, "check() reports nothing", "Open the PNG and look at it",
            "No overflow, overlap, or arrow problems", "Spacing, balance, and whether the message is clear", C.GREEN,

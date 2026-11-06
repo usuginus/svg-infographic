@@ -615,10 +615,12 @@ class Slide:
 
     def table(self, x, y, w, headers, col_x, rows, highlight=(), head_h=30, row_h=31, row_icons=None):
         """Table. col_x is the left edge of each column (offset from the table's left edge).
-        A cell is a string or (string, color, weight). highlight lists rows with a light blue background.
+        A cell is a string or (string, color, weight). highlight lists rows with a light blue background, or maps
+        row numbers to an accent color ({0: C.ORANGE}) to give each row that color's light background.
         row_icons gives one entry per row: an icon name, (icon name, color), or None. The icon (18px) goes at the
         start of the first column and the first cell moves right to make room."""
         n = len(rows)
+        shade = highlight if isinstance(highlight, dict) else {i: C.PRIMARY for i in highlight}
         self.card(x, y, w, head_h + row_h * n)
         self.raw(f'<path d="M{x + 1:.1f},{y + head_h:.1f} V{y + 12:.1f} A11,11 0 0 1 {x + 12:.1f},{y + 1:.1f} '
                  f'H{x + w - 12:.1f} A11,11 0 0 1 {x + w - 1:.1f},{y + 12:.1f} V{y + head_h:.1f} Z" fill="#F1F5F9"/>')
@@ -627,9 +629,10 @@ class Slide:
             self.text(x + col_x[k], y + head_h / 2 + 4.5, hd, 12, C.SUB, 600)
         for i, row in enumerate(rows):
             ry = y + head_h + i * row_h
-            if i in highlight:
+            if i in shade:
                 bottom = 11 if i == n - 1 else 0
-                self.raw(f'<rect x="{x + 1:.1f}" y="{ry:.1f}" width="{w - 2:.1f}" height="{row_h - bottom}" fill="{C.PRIMARY_BG}"/>')
+                self.raw(f'<rect x="{x + 1:.1f}" y="{ry:.1f}" width="{w - 2:.1f}" height="{row_h - bottom}" '
+                         f'fill="{tint(shade[i], C.PRIMARY_BG)}"/>')
             self.line(x, ry, x + w, ry)
             shift = 0
             if row_icons and row_icons[i]:

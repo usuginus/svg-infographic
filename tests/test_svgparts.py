@@ -180,6 +180,13 @@ class DefaultsTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             Slide("t", "t", theme={"PURPLE": "#7C3AED"})
 
+    def test_table_highlight_takes_a_color_per_row(self):
+        s = Slide("t", "t")
+        s.table(10, 10, 400, ["A", "B"], [16, 200], [("x", "y"), ("z", "w")], highlight={0: C.ORANGE, 1: C.GREEN})
+        svg = "".join(s.out)
+        self.assertIn(C.ORANGE_BG, svg)
+        self.assertIn(C.GREEN_BG, svg)
+
     def test_box_icon_keeps_text_inside(self):
         s = Slide("t", "t")
         s.box(10, 10, 180, 48, "Reservation API", sub="internal", icon="server")

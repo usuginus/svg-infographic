@@ -48,7 +48,7 @@ s.render("/path/out.png")   # also writes /path/out.svg and runs check()
 | `stat` / `stats` | Label and value pair (`stats` lays them out in one row) |
 | `flow(y, items)` | Boxes in a row joined by arrows. An accent color sets the border and heading color |
 | `card` / `pill` / `status` / `bullets` | Card, number or category badge, status indicator, bullet list. Combine them to build custom cards |
-| `table(x, y, w, headers, col_x, rows, highlight, row_icons)` | Table with a shaded header row. Rows in `highlight` get a light blue background. `row_icons` puts an 18px icon before the first cell of each row |
+| `table(x, y, w, headers, col_x, rows, highlight, row_icons)` | Table with a shaded header row. Rows in `highlight` get a light blue background; pass `{row: color}` to use the light background of another accent color. `row_icons` puts an 18px icon before the first cell of each row |
 | `steps(x, y, items)` | Numbered steps stacked vertically |
 | `arrow` / `arrow_down` / `line` / `dot` / `numbered` | Lines and marks |
 | `columns(n, gap)` | Width and x positions that split the area inside the side margins into n columns |
