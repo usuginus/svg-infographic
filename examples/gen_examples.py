@@ -7,7 +7,7 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "..", "plugins", "svg-infographic", "skills", "svg-infographic", "scripts"))
-from svgparts import Slide, C  # noqa: E402
+from svgparts import Slide, C, tint  # noqa: E402
 
 
 def done(s, name):
@@ -92,7 +92,7 @@ for row, (before_label, before_text, after_label, after_text) in enumerate([
     ry = y + 56 + row * 90
     for x, label, text, color in [(s.M, before_label, before_text, None),
                                   (s.M + hw + 64, after_label, after_text, C.GREEN)]:
-        s.card(x, ry, hw, 76, color or C.LINE)
+        s.card(x, ry, hw, 76, color or C.LINE, tint(color))
         s.text(x + s.PAD, ry + 26, label, 12, C.SUB, 500)
         s.text(x + s.PAD, ry + 56, text, 16, C.TEXT, 600, max_width=hw - 2 * s.PAD)
     s.connector(s.M + hw + 14, ry + 38, s.M + hw + 50, ry + 38)

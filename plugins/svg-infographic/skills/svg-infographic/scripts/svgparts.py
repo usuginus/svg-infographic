@@ -267,6 +267,11 @@ def theme_colors(theme):
     return out
 
 
+def tint(accent, default=C.CARD):
+    """Light background for an accent color (blue, green, or orange). Other colors get default."""
+    return {C.PRIMARY: C.PRIMARY_BG, C.GREEN: C.GREEN_BG, C.ORANGE: C.ORANGE_BG}.get(accent, default)
+
+
 class Slide:
     def __init__(self, title, description, width=960, height=540, margin=24, pad=20, theme=None):
         """theme maps C role names to colors, for example {"PRIMARY": "#7C3AED", "GREEN": "#0F766E"}.
@@ -434,7 +439,7 @@ class Slide:
     def node(self, x, y, w, h, icon, title, sub=(), accent=None):
         """Diagram element (person, system, data, etc.). Icon on top, then name and description, centered."""
         color = accent or C.TEXT
-        self.card(x, y, w, h, accent or C.LINE)
+        self.card(x, y, w, h, accent or C.LINE, tint(accent))
         self.icon(icon, x + w / 2 - 12, y + 14, 24, accent or C.SUB)
         self.text(x + w / 2, y + 58, title, 13, color, 600, "middle", max_width=w - 16)
         for j, s_ in enumerate(self._desc(sub, w - 16)):
@@ -473,7 +478,10 @@ class Slide:
             icon=None):
         """Process step in a decision diagram (rectangle without shadow). Text is centered.
         Without sub, a title wider than the box is wrapped to two lines.
-        With icon, the icon sits left of the text and the pair is centered together."""
+        With icon, the icon sits left of the text and the pair is centered together.
+        A box with an accent border (blue, green, or orange) and the default fill gets the light accent background."""
+        if fill == C.CARD:
+            fill = tint(border)
         self.raw(f'<rect x="{x:.1f}" y="{y:.1f}" width="{w:.1f}" height="{h:.1f}" rx="{rx}" fill="{fill}" '
                  f'stroke="{border}" stroke-width="1.2" data-part="box"/>')
         if icon:
@@ -504,7 +512,7 @@ class Slide:
 
     def terminal(self, x, y, w, h, label, color=C.SUB, sub=None):
         """End of a decision diagram (ACK, NACK, done, etc.). color shows what the outcome means."""
-        bg = {C.GREEN: C.GREEN_BG, C.ORANGE: C.ORANGE_BG, C.PRIMARY: C.PRIMARY_BG}.get(color, "#F1F5F9")
+        bg = tint(color, "#F1F5F9")
         self.box(x, y, w, h, label, sub=sub, fill=bg, border=color, color=color if color != C.SUB else C.TEXT,
                  rx=min(h / 2, 14))
 
@@ -555,7 +563,7 @@ class Slide:
 
     def band(self, x1, x2, y, h, color, label=None, label_color=None):
         """Band showing a time window or range. color is the band color. label goes to the right of the band."""
-        bg = {C.GREEN: C.GREEN_BG, C.ORANGE: C.ORANGE_BG, C.PRIMARY: C.PRIMARY_BG}.get(color, "#F1F5F9")
+        bg = tint(color, "#F1F5F9")
         self.raw(f'<rect x="{x1:.1f}" y="{y:.1f}" width="{max(x2 - x1, 4):.1f}" height="{h}" rx="{min(h / 2, 5)}" '
                  f'fill="{bg}" stroke="{color}" stroke-width="1.2"/>')
         if label:
@@ -585,7 +593,7 @@ class Slide:
         A box with an accent gets its border and heading in that color."""
         w, xs = self.columns(len(items), gap)
         for i, (x, (title, desc, accent)) in enumerate(zip(xs, items)):
-            self.card(x, y, w, h, accent or C.LINE)
+            self.card(x, y, w, h, accent or C.LINE, tint(accent))
             self.text(x + pad, y + 28, title, 14, accent or C.TEXT, 600, max_width=w - 2 * pad)
             for j, d in enumerate(self._desc(desc, w - 2 * pad)):
                 self.text(x + pad, y + 51 + j * 18, d, 12, C.SUB, max_width=w - 2 * pad)
@@ -687,7 +695,7 @@ class Slide:
         rw = w - gap - cw
         for cx_, cww, title, sub, accent, icon in [(x, cw, cond, cond_sub, None, cond_icon),
                                                    (x + cw + gap, rw, result, result_sub, color, result_icon)]:
-            self.card(cx_, y, cww, h, accent or C.LINE)
+            self.card(cx_, y, cww, h, accent or C.LINE, tint(accent))
             ty = y + (27 if sub else h / 2 + 5)
             if icon:
                 self.titled(cx_ + self.PAD, ty, icon, title, 14, accent or C.TEXT, accent or C.SUB,
@@ -851,7 +859,7 @@ class Slide:
             self.text(self.M, ry + row_h / 2 + 5, name, 13, C.TEXT, 600, max_width=label_w - 12)
             for start, end, label, color in bars:
                 bx1, bx2 = f(start) + 3, f(end) - 3
-                bg = {C.GREEN: C.GREEN_BG, C.ORANGE: C.ORANGE_BG, C.PRIMARY: C.PRIMARY_BG}.get(color, "#F1F5F9")
+                bg = tint(color, "#F1F5F9")
                 by = ry + (row_h - bar_h) / 2
                 self.raw(f'<rect x="{bx1:.1f}" y="{by:.1f}" width="{bx2 - bx1:.1f}" height="{bar_h}" rx="6" '
                          f'fill="{bg}" stroke="{color}" stroke-width="1.2" data-part="box"/>')

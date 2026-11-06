@@ -31,14 +31,14 @@
 <rect x="24.0" y="286.0" width="424.0" height="76.0" rx="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1" filter="url(#sh)" data-part="box"/>
 <text x="44.0" y="312.0" font-size="12" font-weight="500" fill="#64748B" text-anchor="start">Topic</text>
 <text x="44.0" y="342.0" font-size="16" font-weight="600" fill="#1E293B" text-anchor="start" data-maxw="384.0">Cause</text>
-<rect x="512.0" y="286.0" width="424.0" height="76.0" rx="12" fill="#FFFFFF" stroke="#10B981" stroke-width="1" filter="url(#sh)" data-part="box"/>
+<rect x="512.0" y="286.0" width="424.0" height="76.0" rx="12" fill="#ECFDF5" stroke="#10B981" stroke-width="1" filter="url(#sh)" data-part="box"/>
 <text x="532.0" y="312.0" font-size="12" font-weight="500" fill="#64748B" text-anchor="start">Conclusion</text>
 <text x="532.0" y="342.0" font-size="16" font-weight="600" fill="#1E293B" text-anchor="start" data-maxw="384.0">Cause: bookings pushed CPU to 100%</text>
 <path d="M462.0,324.0 L498.0,324.0 M492.2,328.0 L498.0,324.0 L492.2,320.0" stroke="#94A3B8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none" data-part="arrow"/>
 <rect x="24.0" y="376.0" width="424.0" height="76.0" rx="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1" filter="url(#sh)" data-part="box"/>
 <text x="44.0" y="402.0" font-size="12" font-weight="500" fill="#64748B" text-anchor="start">Metaphor</text>
 <text x="44.0" y="432.0" font-size="16" font-weight="600" fill="#1E293B" text-anchor="start" data-maxw="384.0">We fought the fire all morning</text>
-<rect x="512.0" y="376.0" width="424.0" height="76.0" rx="12" fill="#FFFFFF" stroke="#10B981" stroke-width="1" filter="url(#sh)" data-part="box"/>
+<rect x="512.0" y="376.0" width="424.0" height="76.0" rx="12" fill="#ECFDF5" stroke="#10B981" stroke-width="1" filter="url(#sh)" data-part="box"/>
 <text x="532.0" y="402.0" font-size="12" font-weight="500" fill="#64748B" text-anchor="start">Literal</text>
 <text x="532.0" y="432.0" font-size="16" font-weight="600" fill="#1E293B" text-anchor="start" data-maxw="384.0">We restored search by 9:20</text>
 <path d="M462.0,414.0 L498.0,414.0 M492.2,418.0 L498.0,414.0 L492.2,410.0" stroke="#94A3B8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none" data-part="arrow"/>

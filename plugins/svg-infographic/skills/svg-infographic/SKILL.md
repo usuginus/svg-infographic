@@ -92,7 +92,7 @@ There are 24 icons: `user` `users` `building` `server` `database` `laptop` `ai` 
 - **Use three levels of size, weight, and color for importance.** Heading → row heading → card heading → description, each smaller and lighter. Elements at the same level look the same.
 - **Align.** Align left edges, top edges, and spacing. Cards in the same row have the same width and height. Laying them out with `columns()` aligns them automatically.
 - **Put related things close and unrelated things apart.** Spacing between cards (12px or more) and between rows (30px or more) is wider than line spacing inside a card (18–24px).
-- **Give each color one meaning.** Orange is a problem, green is done or reached, blue is numbering and new items. Do not add other colors. Do not color things without a reason.
+- **Give each color one meaning.** Orange is a problem, green is done or reached, blue is numbering and new items. Do not add other colors. Do not color things without a reason. An element drawn with an accent color also gets that color's light background (`tint()`), so the emphasis reads at a glance without adding colors.
 - **Use fewer words.** At most two lines of description per item. Write facts as short phrases, not sentences. Give numbers their units.
 - **Do not add decoration.** No gradients or heavy shadows. Use icons and diagrams only when the rules in the next section call for them.
 - **Use the source's terms.** Do not call the same thing by different names within a figure.
