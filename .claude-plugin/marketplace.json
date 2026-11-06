@@ -6,14 +6,14 @@
   },
   "metadata": {
     "description": "Claude Code skill that draws business infographics as a single SVG and checks them as PNG",
-    "version": "1.3.0"
+    "version": "1.4.0"
   },
   "plugins": [
     {
       "name": "svg-infographic",
       "source": "./plugins/svg-infographic",
       "description": "Draws business infographics as a single slide-ready SVG and checks them as PNG before handing them over",
-      "version": "1.3.0",
+      "version": "1.4.0",
       "author": {
         "name": "usuginus",
         "url": "https://github.com/usuginus"

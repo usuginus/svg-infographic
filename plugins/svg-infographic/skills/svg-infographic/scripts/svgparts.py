@@ -267,6 +267,11 @@ def theme_colors(theme):
     return out
 
 
+def tint(accent, default=C.CARD):
+    """Light background for an accent color (blue, green, or orange). Other colors get default."""
+    return {C.PRIMARY: C.PRIMARY_BG, C.GREEN: C.GREEN_BG, C.ORANGE: C.ORANGE_BG}.get(accent, default)
+
+
 class Slide:
     def __init__(self, title, description, width=960, height=540, margin=24, pad=20, theme=None):
         """theme maps C role names to colors, for example {"PRIMARY": "#7C3AED", "GREEN": "#0F766E"}.
@@ -434,7 +439,7 @@ class Slide:
     def node(self, x, y, w, h, icon, title, sub=(), accent=None):
         """Diagram element (person, system, data, etc.). Icon on top, then name and description, centered."""
         color = accent or C.TEXT
-        self.card(x, y, w, h, accent or C.LINE)
+        self.card(x, y, w, h, accent or C.LINE, tint(accent))
         self.icon(icon, x + w / 2 - 12, y + 14, 24, accent or C.SUB)
         self.text(x + w / 2, y + 58, title, 13, color, 600, "middle", max_width=w - 16)
         for j, s_ in enumerate(self._desc(sub, w - 16)):
@@ -469,11 +474,27 @@ class Slide:
         return w, xs
 
     # ---- decision diagrams ----
-    def box(self, x, y, w, h, title, sub=None, fill=C.CARD, border=C.LINE, color=C.TEXT, rx=10, size=13):
+    def box(self, x, y, w, h, title, sub=None, fill=C.CARD, border=C.LINE, color=C.TEXT, rx=10, size=13,
+            icon=None):
         """Process step in a decision diagram (rectangle without shadow). Text is centered.
-        Without sub, a title wider than the box is wrapped to two lines."""
+        Without sub, a title wider than the box is wrapped to two lines.
+        With icon, the icon sits left of the text and the pair is centered together.
+        A box with an accent border (blue, green, or orange) and the default fill gets the light accent background."""
+        if fill == C.CARD:
+            fill = tint(border)
         self.raw(f'<rect x="{x:.1f}" y="{y:.1f}" width="{w:.1f}" height="{h:.1f}" rx="{rx}" fill="{fill}" '
                  f'stroke="{border}" stroke-width="1.2" data-part="box"/>')
+        if icon:
+            room = w - 16 - 30
+            tw = min(room, max(text_width(title, size), text_width(sub, 12) if sub else 0))
+            gx = x + (w - 30 - tw) / 2
+            self.icon(icon, gx, y + (h - 22) / 2, 22, color if color != C.TEXT else C.SUB)
+            if sub:
+                self.text(gx + 30, y + h / 2 - 3, title, size, color, 600, max_width=room)
+                self.text(gx + 30, y + h / 2 + 14, sub, 12, C.SUB, 400, max_width=room)
+            else:
+                self.text(gx + 30, y + h / 2 + size * 0.36, title, size, color, 600, max_width=room)
+            return
         if sub:
             self.text(x + w / 2, y + h / 2 - 3, title, size, color, 600, "middle", max_width=w - 16)
             self.text(x + w / 2, y + h / 2 + 14, sub, 12, C.SUB, 400, "middle", max_width=w - 16)
@@ -491,7 +512,7 @@ class Slide:
 
     def terminal(self, x, y, w, h, label, color=C.SUB, sub=None):
         """End of a decision diagram (ACK, NACK, done, etc.). color shows what the outcome means."""
-        bg = {C.GREEN: C.GREEN_BG, C.ORANGE: C.ORANGE_BG, C.PRIMARY: C.PRIMARY_BG}.get(color, "#F1F5F9")
+        bg = tint(color, "#F1F5F9")
         self.box(x, y, w, h, label, sub=sub, fill=bg, border=color, color=color if color != C.SUB else C.TEXT,
                  rx=min(h / 2, 14))
 
@@ -542,7 +563,7 @@ class Slide:
 
     def band(self, x1, x2, y, h, color, label=None, label_color=None):
         """Band showing a time window or range. color is the band color. label goes to the right of the band."""
-        bg = {C.GREEN: C.GREEN_BG, C.ORANGE: C.ORANGE_BG, C.PRIMARY: C.PRIMARY_BG}.get(color, "#F1F5F9")
+        bg = tint(color, "#F1F5F9")
         self.raw(f'<rect x="{x1:.1f}" y="{y:.1f}" width="{max(x2 - x1, 4):.1f}" height="{h}" rx="{min(h / 2, 5)}" '
                  f'fill="{bg}" stroke="{color}" stroke-width="1.2"/>')
         if label:
@@ -572,7 +593,7 @@ class Slide:
         A box with an accent gets its border and heading in that color."""
         w, xs = self.columns(len(items), gap)
         for i, (x, (title, desc, accent)) in enumerate(zip(xs, items)):
-            self.card(x, y, w, h, accent or C.LINE)
+            self.card(x, y, w, h, accent or C.LINE, tint(accent))
             self.text(x + pad, y + 28, title, 14, accent or C.TEXT, 600, max_width=w - 2 * pad)
             for j, d in enumerate(self._desc(desc, w - 2 * pad)):
                 self.text(x + pad, y + 51 + j * 18, d, 12, C.SUB, max_width=w - 2 * pad)
@@ -592,24 +613,37 @@ class Slide:
         self.dot(x + 4, y - 4, color)
         self.text(x + 14, y, label, 12, color, 500)
 
-    def table(self, x, y, w, headers, col_x, rows, highlight=(), head_h=30, row_h=31):
+    def table(self, x, y, w, headers, col_x, rows, highlight=(), head_h=30, row_h=31, row_icons=None):
         """Table. col_x is the left edge of each column (offset from the table's left edge).
-        A cell is a string or (string, color, weight). highlight lists rows with a light blue background."""
+        A cell is a string or (string, color, weight). highlight lists rows with a light blue background, or maps
+        row numbers to an accent color ({0: C.ORANGE}) to give each row that color's light background.
+        row_icons gives one entry per row: an icon name, (icon name, color), or None. The icon (18px) goes at the
+        start of the first column and the first cell moves right to make room."""
         n = len(rows)
+        shade = highlight if isinstance(highlight, dict) else {i: C.PRIMARY for i in highlight}
         self.card(x, y, w, head_h + row_h * n)
+        self.raw(f'<path d="M{x + 1:.1f},{y + head_h:.1f} V{y + 12:.1f} A11,11 0 0 1 {x + 12:.1f},{y + 1:.1f} '
+                 f'H{x + w - 12:.1f} A11,11 0 0 1 {x + w - 1:.1f},{y + 12:.1f} V{y + head_h:.1f} Z" fill="#F1F5F9"/>')
         bounds = list(col_x) + [w]
         for k, hd in enumerate(headers):
-            self.text(x + col_x[k], y + 20, hd, 12, C.SUB, 500)
+            self.text(x + col_x[k], y + head_h / 2 + 4.5, hd, 12, C.SUB, 600)
         for i, row in enumerate(rows):
             ry = y + head_h + i * row_h
-            if i in highlight:
+            if i in shade:
                 bottom = 11 if i == n - 1 else 0
-                self.raw(f'<rect x="{x + 1:.1f}" y="{ry:.1f}" width="{w - 2:.1f}" height="{row_h - bottom}" fill="{C.PRIMARY_BG}"/>')
+                self.raw(f'<rect x="{x + 1:.1f}" y="{ry:.1f}" width="{w - 2:.1f}" height="{row_h - bottom}" '
+                         f'fill="{tint(shade[i], C.PRIMARY_BG)}"/>')
             self.line(x, ry, x + w, ry)
+            shift = 0
+            if row_icons and row_icons[i]:
+                name, icolor = (row_icons[i], C.SUB) if isinstance(row_icons[i], str) else row_icons[i]
+                self.icon(name, x + col_x[0], ry + (row_h - 18) / 2, 18, icolor)
+                shift = 26
             for k, cell in enumerate(row):
                 s, color, weight = (cell, C.TEXT, 400) if isinstance(cell, str) else cell
-                self.text(x + col_x[k], ry + row_h / 2 + 5, s, 12.5 if k else 13, color, weight,
-                          max_width=bounds[k + 1] - col_x[k] - 12)
+                dx = shift if k == 0 else 0
+                self.text(x + col_x[k] + dx, ry + row_h / 2 + 5, s, 12.5 if k else 13, color, weight,
+                          max_width=bounds[k + 1] - col_x[k] - dx - 12)
 
     def steps(self, x, y, items, step=50):
         """Numbered steps stacked vertically. items = [(heading, description), ...]. y is the center of the first circle."""
@@ -623,17 +657,18 @@ class Slide:
 
     # ---- sequences, rules, action lists ----
     def sequence(self, y, actors, messages, step=30, head_h=44, left=None, right=None, numbered=True):
-        """Sequence diagram. actors = [(key, name, sub or None, accent or None), ...] are placed in equal columns
+        """Sequence diagram. actors = [(key, name, sub or None, accent or None[, icon]), ...] are placed in equal columns
         with a dashed lifeline below each. messages = [(from_key, to_key, label, accent or None), ...] are drawn
         top to bottom, one row per step, with the label centered above the arrow on a background fill.
         With numbered=True, labels are prefixed "1. ", "2. ", and so on.
         Returns (x of each actor by key, y below the last message)."""
         n = len(actors)
         w, xs = self.columns(n, 12, left, right)
-        cx = {key: x + w / 2 for x, (key, *_rest) in zip(xs, actors)}
+        cx = {a[0]: x + w / 2 for x, a in zip(xs, actors)}
         bottom = y + head_h + 24 + step * len(messages)
-        for x, (key, name, sub, accent) in zip(xs, actors):
-            self.box(x, y, w, head_h, name, sub=sub, color=accent or C.TEXT, border=accent or C.LINE)
+        for x, (key, name, sub, accent, *icon) in zip(xs, actors):
+            self.box(x, y, w, head_h, name, sub=sub, color=accent or C.TEXT, border=accent or C.LINE,
+                     icon=icon[0] if icon else None)
             self.raw(f'<path d="M{cx[key]:.1f},{y + head_h:.1f} V{bottom:.1f}" stroke="{C.LINE}" '
                      f'stroke-width="1.5" stroke-dasharray="4 4"/>')
         for i, (a, b, label, accent) in enumerate(messages):
@@ -654,16 +689,22 @@ class Slide:
         return cx, bottom
 
     def rule_row(self, x, y, w, cond, result, cond_sub=None, result_sub=None, color=C.PRIMARY, label="Yes",
-                 split=0.42, h=64):
+                 split=0.42, h=64, cond_icon=None, result_icon=None):
         """One "if this, then that" row: a card with the condition, an arrow with a label, and a card with the
-        result in the accent color. split is the share of w given to the condition card. Returns y below the row."""
+        result in the accent color. split is the share of w given to the condition card. cond_icon and result_icon
+        put an icon before each title. Returns y below the row."""
         gap = max(64, text_width(label, 12) + 40)
         cw = (w - gap) * split
         rw = w - gap - cw
-        for cx_, cww, title, sub, accent in [(x, cw, cond, cond_sub, None), (x + cw + gap, rw, result, result_sub, color)]:
-            self.card(cx_, y, cww, h, accent or C.LINE)
+        for cx_, cww, title, sub, accent, icon in [(x, cw, cond, cond_sub, None, cond_icon),
+                                                   (x + cw + gap, rw, result, result_sub, color, result_icon)]:
+            self.card(cx_, y, cww, h, accent or C.LINE, tint(accent))
             ty = y + (27 if sub else h / 2 + 5)
-            self.text(cx_ + self.PAD, ty, title, 14, accent or C.TEXT, 600, max_width=cww - 2 * self.PAD)
+            if icon:
+                self.titled(cx_ + self.PAD, ty, icon, title, 14, accent or C.TEXT, accent or C.SUB,
+                            max_width=cww - 2 * self.PAD)
+            else:
+                self.text(cx_ + self.PAD, ty, title, 14, accent or C.TEXT, 600, max_width=cww - 2 * self.PAD)
             if sub:
                 self.text(cx_ + self.PAD, y + 48, sub, 12, C.SUB, max_width=cww - 2 * self.PAD)
         self.connector(x + cw + 8, y + h / 2, x + cw + gap - 8, y + h / 2, label=label)
@@ -741,16 +782,20 @@ class Slide:
                     self.edge_label(mx, (ay + by + box_h) / 2, label)
         return y + len(lanes) * lane_h
 
-    def before_after(self, y, before, after, titles=("Before", "After"), h=None, gap=64, step=26):
+    def before_after(self, y, before, after, titles=("Before", "After"), h=None, gap=64, step=26, icons=None):
         """Two cards side by side with an arrow between them. before and after are lists of lines; a line given as
-        (text, True) is a changed line and is colored (orange before, green after). Returns y below the cards."""
+        (text, True) is a changed line and is colored (orange before, green after). icons = (before icon, after
+        icon) puts an icon before each title, in the card's accent color. Returns y below the cards."""
         w = (self.W - 2 * self.M - gap) / 2
         n = max(len(before), len(after))
         h = h or 56 + n * step
         for k, (x, title, items, color) in enumerate([(self.M, titles[0], before, C.ORANGE),
                                                        (self.M + w + gap, titles[1], after, C.GREEN)]):
             self.card(x, y, w, h)
-            self.text(x + self.PAD, y + 30, title, 15, C.TEXT, 600, max_width=w - 2 * self.PAD)
+            if icons and icons[k]:
+                self.titled(x + self.PAD, y + 30, icons[k], title, 15, C.TEXT, color, max_width=w - 2 * self.PAD)
+            else:
+                self.text(x + self.PAD, y + 30, title, 15, C.TEXT, 600, max_width=w - 2 * self.PAD)
             for i, item in enumerate(items):
                 text, changed = (item, False) if isinstance(item, str) else item
                 yy = y + 60 + i * step
@@ -761,7 +806,7 @@ class Slide:
         return y + h
 
     def tree(self, y, root, box_w=None, box_h=52, level_gap=40, gap=16, left=None, right=None):
-        """Hierarchy such as an org chart. root = (title, sub or None, [children...], accent or None),
+        """Hierarchy such as an org chart. root = (title, sub or None, [children...], accent or None[, icon]),
         where each child has the same shape. Leaves are spread evenly; a parent is centered over its children.
         Returns y below the deepest level."""
         left = self.M if left is None else left
@@ -783,8 +828,9 @@ class Slide:
             k = leaves(nd)
             cx = left + (first + k / 2) * slot
             by = y + lvl * (box_h + level_gap)
-            title, sub, kids, accent = nd
-            self.box(cx - bw / 2, by, bw, box_h, title, sub=sub, color=accent or C.TEXT, border=accent or C.LINE)
+            title, sub, kids, accent, *icon = nd
+            self.box(cx - bw / 2, by, bw, box_h, title, sub=sub, color=accent or C.TEXT, border=accent or C.LINE,
+                     icon=icon[0] if icon else None)
             if kids:
                 mid = by + box_h + level_gap / 2
                 xs, f = [], first
@@ -816,7 +862,7 @@ class Slide:
             self.text(self.M, ry + row_h / 2 + 5, name, 13, C.TEXT, 600, max_width=label_w - 12)
             for start, end, label, color in bars:
                 bx1, bx2 = f(start) + 3, f(end) - 3
-                bg = {C.GREEN: C.GREEN_BG, C.ORANGE: C.ORANGE_BG, C.PRIMARY: C.PRIMARY_BG}.get(color, "#F1F5F9")
+                bg = tint(color, "#F1F5F9")
                 by = ry + (row_h - bar_h) / 2
                 self.raw(f'<rect x="{bx1:.1f}" y="{by:.1f}" width="{bx2 - bx1:.1f}" height="{bar_h}" rx="6" '
                          f'fill="{bg}" stroke="{color}" stroke-width="1.2" data-part="box"/>')

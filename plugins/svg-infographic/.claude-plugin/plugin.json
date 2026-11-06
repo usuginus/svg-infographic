@@ -1,6 +1,6 @@
 {
   "name": "svg-infographic",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Draws business infographics as a single slide-ready SVG and checks them as PNG before handing them over",
   "author": {
     "name": "usuginus",
