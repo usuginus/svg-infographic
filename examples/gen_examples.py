@@ -50,18 +50,14 @@ s.table(s.M, 112, s.W - 2 * s.M, ["Channel", "Delivery", "Cost", "Kept as a reco
     ("SMS", ("Seconds", C.GREEN, 500), ("Charged per message", C.ORANGE, 500), "On the device", "Verification codes"),
 ], highlight=(1,), row_h=44)
 s.section(330, "How to choose")
-for i, (q, qsub, a, asub, color) in enumerate([
-    ("Must it be read today?", "A deadline or pickup period is close", "Send a push notification", "Also email patrons who do not have the app", C.PRIMARY),
-    ("Will they need to look it up later?", "Receipts, confirmations, changes to terms", "Send an email", "Put the topic and date in the subject", C.GREEN),
-]):
-    y = 350 + i * 82
-    s.card(s.M, y, 380, 64)
-    s.text(s.M + 20, y + 27, q, 14, C.TEXT, 600, max_width=340)
-    s.text(s.M + 20, y + 48, qsub, 12, C.SUB, max_width=340)
-    s.connector(s.M + 392, y + 32, 516, y + 32, label="Yes")
-    s.card(524, y, s.W - s.M - 524, 64, color)
-    s.text(544, y + 27, a, 14, color, 600, max_width=372)
-    s.text(544, y + 48, asub, 12, C.SUB, max_width=372)
+y = 350
+for cond, cond_sub, result, result_sub, color in [
+    ("Must it be read today?", "A deadline or pickup period is close",
+     "Send a push notification", "Also email patrons who do not have the app", C.PRIMARY),
+    ("Will they need to look it up later?", "Receipts, confirmations, changes to terms",
+     "Send an email", "Put the topic and date in the subject", C.GREEN),
+]:
+    y = s.rule_row(s.M, y, s.W - 2 * s.M, cond, result, cond_sub, result_sub, color) + 18
 done(s, "example-2-compare")
 
 
@@ -79,15 +75,36 @@ s.timeline(222, [
     ("9:20", "Recovered", ["Search responds at", "normal speed again"], C.GREEN),
 ])
 s.section(340, "Follow-up actions")
-y = 358
-for label, desc, st, color in [
+s.action_list(358, [
     ("Scale up before opening", "Run 4 servers from 8:30 on Mondays and after holidays", "Done", C.GREEN),
     ("Alert on CPU usage", "Notify the on-call person when CPU stays above 80% for 5 min", "Done", C.GREEN),
     ("Cache search results", "Return cached results for repeated searches to reduce load", "In progress", C.ORANGE),
-]:
-    s.card(s.M, y, s.W - 2 * s.M, 46)
-    s.text(s.M + 20, y + 28, label, 14, C.TEXT, 600, max_width=250)
-    s.text(s.M + 290, y + 28, desc, 12.5, C.SUB, max_width=500)
-    s.status(s.W - s.M - 110, y + 28, st, color)
-    y += 52
+])
 done(s, "example-3-incident")
+
+
+# ---- 4. Sequence diagram ----
+s = Slide("How a reservation is stored", "Order of messages between the patron, web app, API, database, and email service")
+s.header("Only the reservation API writes to the database", "Sequence diagram")
+cx, bottom = s.sequence(70, [
+    ("patron", "Patron", None, None),
+    ("web", "Web app", "browser", None),
+    ("api", "Reservation API", None, C.PRIMARY),
+    ("db", "Database", None, None),
+    ("mail", "Email service", None, None),
+], [
+    ("patron", "web", "Choose a book", None),
+    ("web", "api", "Request a reservation", None),
+    ("api", "db", "Check availability", C.PRIMARY),
+    ("api", "db", "Save the reservation", C.PRIMARY),
+    ("api", "web", "Queue position", None),
+    ("web", "patron", "Show the position", None),
+    ("api", "mail", "Send the confirmation", None),
+    ("mail", "patron", "Confirmation email", None),
+])
+s.section(bottom + 34, "Why the web app does not write directly")
+s.bullets(s.M, bottom + 62, s.W - 2 * s.M, [
+    "The API is the only place that decides the queue order, so two patrons never get the same position",
+    "Changing the database affects only the API, not the web app",
+], step=26)
+done(s, "example-4-sequence")

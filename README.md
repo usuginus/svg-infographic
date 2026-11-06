@@ -8,12 +8,16 @@ A [Claude Code](https://docs.claude.com/en/docs/claude-code) skill that draws bu
 |---|---|
 | ![Comparison table example](examples/example-2-compare.png) | ![Incident review example](examples/example-3-incident.png) |
 
+| Sequence diagram |
+|---|
+| ![Sequence diagram example](examples/example-4-sequence.png) |
+
 All examples are fictional. The script that draws them is [examples/gen_examples.py](examples/gen_examples.py).
 
 ## Features
 
 - **The heading states the conclusion**: "Cause: a Monday spike maxed out the search server's CPU", not "Cause". Each slide carries one message.
-- **Drawn with a parts library**: cards, arrows, tables, timelines, steps, zones, icons, and more live in a Python parts library ([svgparts.py](plugins/svg-infographic/skills/svg-infographic/scripts/svgparts.py)). Colors, font sizes, and weights are fixed inside the library, so every figure looks consistent.
+- **Drawn with a parts library**: cards, arrows, tables, timelines, steps, zones, sequence diagrams, rule rows, action lists, icons, and more live in a Python parts library ([svgparts.py](plugins/svg-infographic/skills/svg-infographic/scripts/svgparts.py)). Colors, font sizes, and weights are fixed inside the library, so every figure looks consistent.
 - **Checked with real fonts**: after rendering, the library opens the SVG in the browser and measures it. It reports text that overflows or crosses the edge of a card, overlapping text, arrows or lines that cross text, and arrows that enter a box. Claude then looks at the PNG for spacing and balance.
 - **Wraps text**: descriptions can be given as a single string and are wrapped to fit. English breaks at spaces; Japanese breaks after punctuation or particles and follows Japanese line-breaking rules.
 - **No metaphors**: wording such as "fight the fire" or "turbocharge" is rewritten literally, as "respond to the outage" or "halve the processing time".

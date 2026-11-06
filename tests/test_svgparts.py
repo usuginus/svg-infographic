@@ -85,7 +85,19 @@ def gallery():
     c.band(f(6), f(8), 320, 18, C.GREEN, "quiet")
     c.range_bar(500, 376, 436, "Response time", 120, 300, 500, "120–300 ms")
     c.ratio(500, 400, 436, "Total", "1,200", C.TEXT, "of which done", 0.6)
-    return {"gallery-a": a, "gallery-b": b, "gallery-c": c}
+    d = Slide("Parts gallery D", "Sequences, rules, and action lists")
+    d.header("Parts gallery D: sequences, rules, and action lists", "svgparts")
+    _, bottom = d.sequence(70, [("u", "Patron", None, None), ("w", "Web app", "browser", C.PRIMARY),
+                                ("a", "Reservation API", None, None), ("d", "Database", None, None)], [
+        ("u", "w", "Choose a book", None), ("w", "a", "Request a reservation", C.PRIMARY),
+        ("a", "d", "Save it", None), ("a", "w", "Queue position", None),
+        ("u", "d", "A message that passes over a lifeline", C.ORANGE)])
+    y = d.rule_row(d.M, bottom + 20, d.W - 2 * d.M, "Must it be read today?", "Send a push notification",
+                   "A deadline is close", "Also email patrons without the app")
+    d.action_list(y + 20, [("Scale up before opening", "Run 4 servers from 8:30", "Done", C.GREEN),
+                           ("Cache search results", "Return cached results for repeated searches", "In progress",
+                            C.ORANGE)])
+    return {"gallery-a": a, "gallery-b": b, "gallery-c": c, "gallery-d": d}
 
 
 class TextWidthTest(unittest.TestCase):
@@ -127,6 +139,11 @@ class DefaultsTest(unittest.TestCase):
         for name, s in gallery().items():
             with self.subTest(name):
                 self.assertEqual(s.warnings, [])
+
+    def test_sequence_rejects_message_to_itself(self):
+        s = Slide("t", "t")
+        with self.assertRaises(ValueError):
+            s.sequence(70, [("a", "A", None, None), ("b", "B", None, None)], [("a", "a", "loop", None)])
 
     def test_short_arrow_is_reported(self):
         s = Slide("t", "t")

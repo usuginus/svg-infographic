@@ -40,18 +40,18 @@
 <text x="720.0" y="288.0" font-size="12" font-weight="400" fill="#64748B" text-anchor="start" data-maxw="216.0">normal speed again</text>
 <text x="24.0" y="340.0" font-size="15" font-weight="600" fill="#1E293B" text-anchor="start" data-maxw="912.0">Follow-up actions</text>
 <rect x="24.0" y="358.0" width="912.0" height="46.0" rx="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1" filter="url(#sh)" data-part="box"/>
-<text x="44.0" y="386.0" font-size="14" font-weight="600" fill="#1E293B" text-anchor="start" data-maxw="250.0">Scale up before opening</text>
-<text x="314.0" y="386.0" font-size="12.5" font-weight="400" fill="#64748B" text-anchor="start" data-maxw="500.0">Run 4 servers from 8:30 on Mondays and after holidays</text>
-<circle cx="830.0" cy="382.0" r="3.5" fill="#10B981"/>
-<text x="840.0" y="386.0" font-size="12" font-weight="500" fill="#10B981" text-anchor="start">Done</text>
+<text x="44.0" y="386.0" font-size="14" font-weight="600" fill="#1E293B" text-anchor="start" data-maxw="212.1">Scale up before opening</text>
+<text x="268.1" y="386.0" font-size="12.5" font-weight="400" fill="#64748B" text-anchor="start" data-maxw="544.0">Run 4 servers from 8:30 on Mondays and after holidays</text>
+<circle cx="832.1" cy="382.0" r="3.5" fill="#10B981"/>
+<text x="842.1" y="386.0" font-size="12" font-weight="500" fill="#10B981" text-anchor="start">Done</text>
 <rect x="24.0" y="410.0" width="912.0" height="46.0" rx="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1" filter="url(#sh)" data-part="box"/>
-<text x="44.0" y="438.0" font-size="14" font-weight="600" fill="#1E293B" text-anchor="start" data-maxw="250.0">Alert on CPU usage</text>
-<text x="314.0" y="438.0" font-size="12.5" font-weight="400" fill="#64748B" text-anchor="start" data-maxw="500.0">Notify the on-call person when CPU stays above 80% for 5 min</text>
-<circle cx="830.0" cy="434.0" r="3.5" fill="#10B981"/>
-<text x="840.0" y="438.0" font-size="12" font-weight="500" fill="#10B981" text-anchor="start">Done</text>
+<text x="44.0" y="438.0" font-size="14" font-weight="600" fill="#1E293B" text-anchor="start" data-maxw="212.1">Alert on CPU usage</text>
+<text x="268.1" y="438.0" font-size="12.5" font-weight="400" fill="#64748B" text-anchor="start" data-maxw="544.0">Notify the on-call person when CPU stays above 80% for 5 min</text>
+<circle cx="832.1" cy="434.0" r="3.5" fill="#10B981"/>
+<text x="842.1" y="438.0" font-size="12" font-weight="500" fill="#10B981" text-anchor="start">Done</text>
 <rect x="24.0" y="462.0" width="912.0" height="46.0" rx="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1" filter="url(#sh)" data-part="box"/>
-<text x="44.0" y="490.0" font-size="14" font-weight="600" fill="#1E293B" text-anchor="start" data-maxw="250.0">Cache search results</text>
-<text x="314.0" y="490.0" font-size="12.5" font-weight="400" fill="#64748B" text-anchor="start" data-maxw="500.0">Return cached results for repeated searches to reduce load</text>
-<circle cx="830.0" cy="486.0" r="3.5" fill="#F97316"/>
-<text x="840.0" y="490.0" font-size="12" font-weight="500" fill="#F97316" text-anchor="start">In progress</text>
+<text x="44.0" y="490.0" font-size="14" font-weight="600" fill="#1E293B" text-anchor="start" data-maxw="212.1">Cache search results</text>
+<text x="268.1" y="490.0" font-size="12.5" font-weight="400" fill="#64748B" text-anchor="start" data-maxw="544.0">Return cached results for repeated searches to reduce load</text>
+<circle cx="832.1" cy="486.0" r="3.5" fill="#F97316"/>
+<text x="842.1" y="490.0" font-size="12" font-weight="500" fill="#F97316" text-anchor="start">In progress</text>
 </svg>
