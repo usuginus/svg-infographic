@@ -1,0 +1,28 @@
+{
+  "name": "svg-infographic",
+  "owner": {
+    "name": "usuginus",
+    "url": "https://github.com/usuginus"
+  },
+  "metadata": {
+    "description": "Claude Code skill that draws business infographics as a single SVG and checks them as PNG",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "svg-infographic",
+      "source": "./plugins/svg-infographic",
+      "description": "業務フロー・比較表・階層図・ロードマップなどのインフォグラフィックを、スライドに貼れる SVG で作り、PNG で見た目を確認してから渡すスキル",
+      "version": "1.0.0",
+      "author": {
+        "name": "usuginus",
+        "url": "https://github.com/usuginus"
+      },
+      "homepage": "https://github.com/usuginus/svg-infographic",
+      "repository": "https://github.com/usuginus/svg-infographic",
+      "license": "MIT",
+      "keywords": ["infographic", "svg", "diagram", "slides", "japanese"],
+      "category": "productivity"
+    }
+  ]
+}
