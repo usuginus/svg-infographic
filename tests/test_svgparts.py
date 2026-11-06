@@ -149,6 +149,29 @@ class WrapTest(unittest.TestCase):
         self.assertEqual(wrap("同じ本を予約した人の中で、申し込んだ順に並ぶ", 180, 13),
                          ["同じ本を予約した人の中で、", "申し込んだ順に並ぶ"])
 
+    def test_japanese_keeps_ascii_runs_whole(self):
+        lines = wrap("CPU使用率が80%を5分超えたら担当者に知らせる", 150, 13)
+        self.assertTrue(any("CPU" in ln for ln in lines))
+        self.assertTrue(any("80%" in ln for ln in lines))
+
+    def test_japanese_keeps_a_particle_with_its_closing_bracket(self):
+        self.assertEqual(wrap("「順番待ち」と「用意できた」の2つの状態がある", 120, 13),
+                         ["「順番待ち」と", "「用意できた」の", "2つの状態がある"])
+
+    def test_japanese_keeps_katakana_words_whole(self):
+        self.assertIn("インフォグラフィック", wrap("インフォグラフィックの部品集", 80, 13))
+
+    def test_japanese_prefers_punctuation_on_a_full_line(self):
+        lines = wrap("見出しには、見た人に持ち帰ってほしい結論を書く。話題の名前は書かない。", 230, 13)
+        self.assertEqual(lines[1], "持ち帰ってほしい結論を書く。")
+
+    def test_japanese_does_not_break_early_at_punctuation(self):
+        lines = wrap("返却された本は、予約の順番が最も早い利用者に自動で割り当てられ、メールで知らせる", 200, 13)
+        self.assertEqual(len(lines), 3)
+
+    def test_japanese_avoids_starting_a_line_with_a_particle(self):
+        self.assertEqual(wrap("SVG と PNG をスライドへ", 131, 12), ["SVG と PNG を", "スライドへ"])
+
     def test_word_wider_than_line_is_kept_whole(self):
         self.assertEqual(wrap("Supercalifragilistic word", 60, 13), ["Supercalifragilistic", "word"])
 

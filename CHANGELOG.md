@@ -11,6 +11,10 @@ All notable changes to this project are recorded here. The format follows [Keep 
 - Named items for the parts' arguments (`Stat`, `FlowStep`, `ChainNode`, `Event`, `Step`, `Actor`, `Message`, `Action`, `Lane`, `LaneStep`, `TreeNode`, `Bar`, `RoadmapRow`). Plain tuples still work, and optional fields can be left out.
 - `swimlane` steps take an icon as an optional fifth field.
 - Type hints on the public functions and methods, and a lint step (ruff) in CI.
+- README.ja.md, a Japanese intro image, and a note in the issue forms that Japanese is welcome.
+
+### Changed
+- `wrap()` keeps katakana words whole, avoids starting a line with hiragana (a particle or the rest of a word), prefers a break after punctuation when the line is at least 70% full, and keeps a particle on the same line as the closing bracket before it.
 
 ## [1.4.0] - 2026-11-06
 
