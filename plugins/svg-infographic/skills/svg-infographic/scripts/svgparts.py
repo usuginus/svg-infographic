@@ -905,7 +905,13 @@ document.fonts.ready.then(() => {
   const out = [];
   const r = b => ({x1: b.x, y1: b.y, x2: b.x + b.width, y2: b.y + b.height});
   const name = t => JSON.stringify(t.textContent.length > 40 ? t.textContent.slice(0, 40) + '…' : t.textContent);
-  const texts = [...svg.querySelectorAll('text')].filter(t => t.textContent.trim()).map(t => ({t, b: r(t.getBBox())}));
+  // Horizontal extent is measured. Vertical extent comes from the baseline and font size (0.85em above, 0.18em
+  // below) because getBBox() height is the font's line height, which differs widely between fonts.
+  const glyphs = t => {
+    const bb = t.getBBox(), size = +t.getAttribute('font-size') || 13, base = t.y.baseVal[0].value;
+    return {x1: bb.x, x2: bb.x + bb.width, y1: base - 0.85 * size, y2: base + 0.18 * size};
+  };
+  const texts = [...svg.querySelectorAll('text')].filter(t => t.textContent.trim()).map(t => ({t, b: glyphs(t)}));
   const boxes = [...svg.querySelectorAll('[data-part="box"]')].map(e => r(e.getBBox()));
   const arrows = [...svg.querySelectorAll('[data-part="arrow"]')];
   const lines = [...svg.querySelectorAll('[data-part="arrow"], [data-part="line"]')];
