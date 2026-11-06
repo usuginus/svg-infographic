@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540" font-family="'Hiragino Sans', 'Yu Gothic UI', 'Noto Sans JP', 'Noto Sans CJK JP', system-ui, sans-serif" role="img" aria-label="Claude が伝えることを決め、部品集で描き、ブラウザで実寸を測ってから SVG と PNG を渡す">
+<title>svg-infographic の仕組み</title>
+<defs><filter id="sh" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.07"/></filter></defs>
+<rect width="960" height="540" fill="#F8FAFC"/>
+<text x="24.0" y="42.0" font-size="20" font-weight="600" fill="#1E293B" text-anchor="start" data-maxw="692.0">Claude が図を描き、見せる前に実寸で確かめる</text>
+<text x="936.0" y="42.0" font-size="12" font-weight="400" fill="#64748B" text-anchor="end">svg-infographic</text>
+<text x="24.0" y="84.0" font-size="15" font-weight="600" fill="#1E293B" text-anchor="start" data-maxw="912.0">依頼から、確かめた図ができるまで</text>
+<rect x="24.0" y="104.0" width="147.2" height="112.0" rx="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1" filter="url(#sh)" data-part="box"/>
+<g transform="translate(85.6,118.0) scale(1.0000)" fill="none" stroke="#64748B" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6,2.5 H14 L19,7.5 V21.5 H6 Z"/><path d="M14,2.5 V7.5 H19 M9,12.5 H16 M9,16.5 H16"/></g>
+<text x="97.6" y="162.0" font-size="13" font-weight="600" fill="#1E293B" text-anchor="middle" data-maxw="131.2">決める</text>
+<text x="97.6" y="182.0" font-size="12" font-weight="400" fill="#64748B" text-anchor="middle" data-maxw="131.2">結論を</text>
+<text x="97.6" y="199.0" font-size="12" font-weight="400" fill="#64748B" text-anchor="middle" data-maxw="131.2">1 つ見出しにする</text>
+<path d="M177.2,160.0 L209.2,160.0 M203.4,164.0 L209.2,160.0 L203.4,156.0" stroke="#94A3B8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none" data-part="arrow"/>
+<rect x="215.2" y="104.0" width="147.2" height="112.0" rx="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1" filter="url(#sh)" data-part="box"/>
+<g transform="translate(276.8,118.0) scale(1.0000)" fill="none" stroke="#64748B" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3" width="7" height="6" rx="1.5"/><rect x="14.5" y="9" width="7" height="6" rx="1.5"/><rect x="2.5" y="15" width="7" height="6" rx="1.5"/><path d="M9.5,6 H12 V12 H14.5 M12,12 V18 H9.5"/></g>
+<text x="288.8" y="162.0" font-size="13" font-weight="600" fill="#1E293B" text-anchor="middle" data-maxw="131.2">並べる</text>
+<text x="288.8" y="182.0" font-size="12" font-weight="400" fill="#64748B" text-anchor="middle" data-maxw="131.2">内容に合う図の型を</text>
+<text x="288.8" y="199.0" font-size="12" font-weight="400" fill="#64748B" text-anchor="middle" data-maxw="131.2">選ぶ</text>
+<path d="M368.4,160.0 L400.4,160.0 M394.6,164.0 L400.4,160.0 L394.6,156.0" stroke="#94A3B8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none" data-part="arrow"/>
+<rect x="406.4" y="104.0" width="147.2" height="112.0" rx="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1" filter="url(#sh)" data-part="box"/>
+<g transform="translate(468.0,118.0) scale(1.0000)" fill="none" stroke="#64748B" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12,2.5 L20.5,7 V17 L12,21.5 L3.5,17 V7 Z"/><path d="M3.5,7 L12,11.5 L20.5,7 M12,11.5 V21.5"/></g>
+<text x="480.0" y="162.0" font-size="13" font-weight="600" fill="#1E293B" text-anchor="middle" data-maxw="131.2">描く</text>
+<text x="480.0" y="182.0" font-size="12" font-weight="400" fill="#64748B" text-anchor="middle" data-maxw="131.2">部品が色・大きさ・</text>
+<text x="480.0" y="199.0" font-size="12" font-weight="400" fill="#64748B" text-anchor="middle" data-maxw="131.2">太さをそろえる</text>
+<path d="M559.6,160.0 L591.6,160.0 M585.8,164.0 L591.6,160.0 L585.8,156.0" stroke="#94A3B8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none" data-part="arrow"/>
+<rect x="597.6" y="104.0" width="147.2" height="112.0" rx="12" fill="#EFF6FF" stroke="#2563EB" stroke-width="1" filter="url(#sh)" data-part="box"/>
+<g transform="translate(659.2,118.0) scale(1.0000)" fill="none" stroke="#2563EB" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5,15.5 L21,21"/></g>
+<text x="671.2" y="162.0" font-size="13" font-weight="600" fill="#2563EB" text-anchor="middle" data-maxw="131.2">測る</text>
+<text x="671.2" y="182.0" font-size="12" font-weight="400" fill="#64748B" text-anchor="middle" data-maxw="131.2">実際のフォントで</text>
+<text x="671.2" y="199.0" font-size="12" font-weight="400" fill="#64748B" text-anchor="middle" data-maxw="131.2">ブラウザが測る</text>
+<path d="M750.8,160.0 L782.8,160.0 M777.0,164.0 L782.8,160.0 L777.0,156.0" stroke="#94A3B8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none" data-part="arrow"/>
+<rect x="788.8" y="104.0" width="147.2" height="112.0" rx="12" fill="#ECFDF5" stroke="#10B981" stroke-width="1" filter="url(#sh)" data-part="box"/>
+<g transform="translate(850.4,118.0) scale(1.0000)" fill="none" stroke="#10B981" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8,12.3 L11,15.3 L16.3,9.3"/></g>
+<text x="862.4" y="162.0" font-size="13" font-weight="600" fill="#10B981" text-anchor="middle" data-maxw="131.2">渡す</text>
+<text x="862.4" y="182.0" font-size="12" font-weight="400" fill="#64748B" text-anchor="middle" data-maxw="131.2">SVG と PNG を</text>
+<text x="862.4" y="199.0" font-size="12" font-weight="400" fill="#64748B" text-anchor="middle" data-maxw="131.2">スライドへ</text>
+<path d="M671.2,222.0 L671.2,250.0 L480.0,250.0 L480.0,222.0 M484.0,227.8 L480.0,222.0 L476.0,227.8" stroke="#2563EB" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" data-part="arrow"/>
+<text x="575.6" y="272.0" font-size="12" font-weight="500" fill="#2563EB" text-anchor="middle" data-maxw="912.0">問題があれば直して描き直す</text>
+<text x="24.0" y="312.0" font-size="15" font-weight="600" fill="#1E293B" text-anchor="start" data-maxw="912.0">どの図にも効くこと</text>
+<rect x="24.0" y="328.0" width="296.0" height="130.0" rx="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1" filter="url(#sh)" data-part="box"/>
+<g transform="translate(44.0,344.5) scale(0.9167)" fill="none" stroke="#64748B" stroke-width="1.91" stroke-linecap="round" stroke-linejoin="round"><path d="M5,21 V3.5"/><path d="M5,4 H17.5 L15,8 L17.5,12 H5"/></g>
+<text x="74.0" y="362.0" font-size="15" font-weight="600" fill="#1E293B" text-anchor="start">結論が先</text>
+<text x="44.0" y="392.0" font-size="13" font-weight="400" fill="#64748B" text-anchor="start" data-maxw="256.0">見出しには、見た人に</text>
+<text x="44.0" y="412.0" font-size="13" font-weight="400" fill="#64748B" text-anchor="start" data-maxw="256.0">持ち帰ってほしい結論を書く。</text>
+<text x="44.0" y="432.0" font-size="13" font-weight="400" fill="#64748B" text-anchor="start" data-maxw="256.0">話題の名前は書かない。</text>
+<rect x="332.0" y="328.0" width="296.0" height="130.0" rx="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1" filter="url(#sh)" data-part="box"/>
+<g transform="translate(352.0,344.5) scale(0.9167)" fill="none" stroke="#64748B" stroke-width="1.91" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5,15.5 L21,21"/></g>
+<text x="382.0" y="362.0" font-size="15" font-weight="600" fill="#1E293B" text-anchor="start">推測でなく実測</text>
+<text x="352.0" y="392.0" font-size="13" font-weight="400" fill="#64748B" text-anchor="start" data-maxw="256.0">はみ出し・重なり・文字にかかる矢印を、</text>
+<text x="352.0" y="412.0" font-size="13" font-weight="400" fill="#64748B" text-anchor="start" data-maxw="256.0">実際のフォントで見つける。</text>
+<rect x="640.0" y="328.0" width="296.0" height="130.0" rx="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1" filter="url(#sh)" data-part="box"/>
+<g transform="translate(660.0,344.5) scale(0.9167)" fill="none" stroke="#64748B" stroke-width="1.91" stroke-linecap="round" stroke-linejoin="round"><path d="M6,2.5 H14 L19,7.5 V21.5 H6 Z"/><path d="M14,2.5 V7.5 H19 M9,12.5 H16 M9,16.5 H16"/></g>
+<text x="690.0" y="362.0" font-size="15" font-weight="600" fill="#1E293B" text-anchor="start">文字どおりの言葉</text>
+<text x="660.0" y="392.0" font-size="13" font-weight="400" fill="#64748B" text-anchor="start" data-maxw="256.0">比喩を使わない。1 色に 1 つの意味。</text>
+<text x="660.0" y="412.0" font-size="13" font-weight="400" fill="#64748B" text-anchor="start" data-maxw="256.0">時期で変わる数値は載せない。</text>
+<text x="24.0" y="496.0" font-size="13" font-weight="400" fill="#64748B" text-anchor="start" data-maxw="912.0">図にしたい内容を、ふだんの言葉で頼むだけ。スキル名を指定しなくても使われる。</text>
+</svg>

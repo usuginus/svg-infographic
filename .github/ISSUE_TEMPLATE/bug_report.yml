@@ -2,6 +2,9 @@ name: Bug report
 description: A figure is drawn wrong, check() reports something wrong, or a command fails
 labels: [bug]
 body:
+  - type: markdown
+    attributes:
+      value: You can write in English or Japanese. 日本語で書いても構いません。
   - type: textarea
     id: what
     attributes:

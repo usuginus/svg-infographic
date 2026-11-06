@@ -142,3 +142,32 @@ for x, parts in zip(gxs, [
 s.text(s.M, y + 256, "Each part fixes its colors, sizes, and spacing, and warns when its text may not fit.", 13, C.SUB,
        max_width=s.W - 2 * s.M)
 done(s, "gallery-4-parts")
+
+
+# ---- Intro in Japanese (README.ja.md) ----
+s = Slide("svg-infographic の仕組み", "Claude が伝えることを決め、部品集で描き、ブラウザで実寸を測ってから SVG と PNG を渡す")
+s.header("Claude が図を描き、見せる前に実寸で確かめる", "svg-infographic")
+s.section(84, "依頼から、確かめた図ができるまで")
+w, xs = s.chain(104, [
+    ("document", "決める", "結論を 1 つ見出しにする", None),
+    ("workflow", "並べる", "内容に合う図の型を選ぶ", None),
+    ("container", "描く", "部品が色・大きさ・太さをそろえる", None),
+    ("search", "測る", "実際のフォントでブラウザが測る", C.PRIMARY),
+    ("check", "渡す", "SVG と PNG をスライドへ", C.GREEN),
+], h=112)
+draw_x, measure_x = xs[2] + w / 2, xs[3] + w / 2
+s.elbow([(measure_x, 222), (measure_x, 250), (draw_x, 250), (draw_x, 222)], C.PRIMARY)
+s.text((draw_x + measure_x) / 2, 272, "問題があれば直して描き直す", 12, C.PRIMARY, 500, "middle", max_width=s.W - 2 * s.M)
+s.section(312, "どの図にも効くこと")
+cw, cxs = s.columns(3, 12)
+for x, (icon, title, desc) in zip(cxs, [
+    ("flag", "結論が先", "見出しには、見た人に持ち帰ってほしい結論を書く。話題の名前は書かない。"),
+    ("search", "推測でなく実測", "はみ出し・重なり・文字にかかる矢印を、実際のフォントで見つける。"),
+    ("document", "文字どおりの言葉", "比喩を使わない。1 色に 1 つの意味。時期で変わる数値は載せない。"),
+]):
+    s.card(x, 328, cw, 130)
+    s.titled(x + s.PAD, 362, icon, title)
+    s.paragraph(x + s.PAD, 392, cw - 2 * s.PAD, desc, 13, C.SUB, max_lines=3)
+s.text(s.M, 496, "図にしたい内容を、ふだんの言葉で頼むだけ。スキル名を指定しなくても使われる。", 13, C.SUB,
+       max_width=s.W - 2 * s.M)
+done(s, "intro-ja")
