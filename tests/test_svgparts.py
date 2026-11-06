@@ -36,7 +36,8 @@ def gallery():
     a.section(280, "table and steps")
     a.table(a.M, 296, 440, ["Channel", "Speed", "Cost"], [16, 150, 290], [
         ("Email", "Minutes", "Free"), ("Push", ("Seconds", C.GREEN, 500), "Free"),
-        ("SMS", "Seconds", ("Paid", C.ORANGE, 500))], highlight=(1,))
+        ("SMS", "Seconds", ("Paid", C.ORANGE, 500))], highlight=(1,),
+        row_icons=["document", ("bell", C.PRIMARY), None])
     a.steps(500, 310, [("Join the queue", "Queued by request time"), ("Assign on return", "First in line gets it"),
                        ("Pass it on", "After 7 days, the next patron")])
     a.bullets(a.M, 450, 440, ["A bullet item", "Another bullet item"])
@@ -87,13 +88,13 @@ def gallery():
     c.ratio(500, 400, 436, "Total", "1,200", C.TEXT, "of which done", 0.6)
     d = Slide("Parts gallery D", "Sequences, rules, and action lists")
     d.header("Parts gallery D: sequences, rules, and action lists", "svgparts")
-    _, bottom = d.sequence(70, [("u", "Patron", None, None), ("w", "Web app", "browser", C.PRIMARY),
+    _, bottom = d.sequence(70, [("u", "Patron", None, None, "user"), ("w", "Web app", "browser", C.PRIMARY, "laptop"),
                                 ("a", "Reservation API", None, None), ("d", "Database", None, None)], [
         ("u", "w", "Choose a book", None), ("w", "a", "Request a reservation", C.PRIMARY),
         ("a", "d", "Save it", None), ("a", "w", "Queue position", None),
         ("u", "d", "A message that passes over a lifeline", C.ORANGE)])
     y = d.rule_row(d.M, bottom + 20, d.W - 2 * d.M, "Must it be read today?", "Send a push notification",
-                   "A deadline is close", "Also email patrons without the app")
+                   "A deadline is close", "Also email patrons without the app", cond_icon="clock", result_icon="bell")
     d.action_list(y + 20, [("Scale up before opening", "Run 4 servers from 8:30", "Done", C.GREEN),
                            ("Cache search results", "Return cached results for repeated searches", "In progress",
                             C.ORANGE)])
@@ -103,14 +104,14 @@ def gallery():
         ("p", 0, "Reserve a book", None), ("s", 1, "Assign a copy", C.PRIMARY), ("s", 2, "Send an email", None),
         ("d", 2, "Set the book aside", None), ("p", 3, "Pick it up", C.GREEN)])
     e.before_after(y + 28, ["Patrons phone the desk", ("Staff search by hand", True)],
-                   ["Patrons reserve on the web", ("The system assigns a copy", True)])
+                   ["Patrons reserve on the web", ("The system assigns a copy", True)], icons=("warning", "check"))
 
     f = Slide("Parts gallery F", "Trees, roadmaps, and themes", theme={"PRIMARY": "#7C3AED"})
     f.header("Parts gallery F: trees, roadmaps, and themes", "svgparts")
     y = f.tree(70, ("Library", None, [
         ("Lending", "3 teams", [("Desk", None, [], None), ("Reservations", None, [], C.PRIMARY)], None),
         ("Collections", None, [("Buying", None, [], None), ("Repair", None, [], None)], None),
-        ("Systems", None, [("Web app", None, [], None)], C.GREEN)], None))
+        ("Systems", None, [("Web app", None, [], None, "laptop")], C.GREEN, "server")], None, "building"))
     f.roadmap(y + 30, ["Q1", "Q2", "Q3", "Q4"], [
         ("Web app", [(0, 1.5, "Reservations", C.PRIMARY), (2, 4, "Mobile layout", C.GREEN)]),
         ("Desk", [(1, 1.4, "Self checkout", C.ORANGE)]),
@@ -178,6 +179,12 @@ class DefaultsTest(unittest.TestCase):
     def test_theme_rejects_unknown_roles(self):
         with self.assertRaises(ValueError):
             Slide("t", "t", theme={"PURPLE": "#7C3AED"})
+
+    def test_box_icon_keeps_text_inside(self):
+        s = Slide("t", "t")
+        s.box(10, 10, 180, 48, "Reservation API", sub="internal", icon="server")
+        self.assertEqual(s.warnings, [])
+        self.assertTrue(any(o.startswith("<g transform") for o in s.out))
 
     def test_long_box_title_wraps_to_two_lines(self):
         s = Slide("t", "t")

@@ -48,7 +48,7 @@ s.render("/path/out.png")   # also writes /path/out.svg and runs check()
 | `stat` / `stats` | Label and value pair (`stats` lays them out in one row) |
 | `flow(y, items)` | Boxes in a row joined by arrows. An accent color sets the border and heading color |
 | `card` / `pill` / `status` / `bullets` | Card, number or category badge, status indicator, bullet list. Combine them to build custom cards |
-| `table(x, y, w, headers, col_x, rows, highlight)` | Table. Rows in `highlight` get a light blue background |
+| `table(x, y, w, headers, col_x, rows, highlight, row_icons)` | Table with a shaded header row. Rows in `highlight` get a light blue background. `row_icons` puts an 18px icon before the first cell of each row |
 | `steps(x, y, items)` | Numbered steps stacked vertically |
 | `arrow` / `arrow_down` / `line` / `dot` / `numbered` | Lines and marks |
 | `columns(n, gap)` | Width and x positions that split the area inside the side margins into n columns |
@@ -79,7 +79,7 @@ s.render("/path/out.png")   # also writes /path/out.svg and runs check()
 | `tree(y, root)` | Hierarchy such as an org chart. Leaves are spread evenly and each parent is centered over its children |
 | `roadmap(y, periods, rows)` | Roadmap: equal period columns and one row per team, with bars placed in period units |
 
-`box()` (and so `decision`, `terminal`, `swimlane`, and `tree`) wraps a title that does not fit to two lines.
+`box()` (and so `decision`, `terminal`, `swimlane`, and `tree`) wraps a title that does not fit to two lines. `box(..., icon=)` puts an icon left of the text. `sequence` actors and `tree` nodes take an icon as an optional fifth element, `rule_row` takes `cond_icon` / `result_icon`, and `before_after` takes `icons=(before, after)`.
 
 Descriptions in `flow`, `chain` / `node`, and `timeline` can be a list of lines or a single string. A string is wrapped to the width of the part, and more than two lines is reported as a warning.
 
@@ -130,7 +130,8 @@ There are 24 icons: `user` `users` `building` `server` `database` `laptop` `ai` 
   - At most one icon per element
   - In the same figure, use the same icon for the same thing, and never the same icon for different things
   - Use the secondary text color (`C.SUB`). Only elements you want to emphasize use their accent color (orange or green)
-  - Size 22–24px. Icons must not stand out more than the text
+  - Size 22–24px (18px in table rows). Icons must not stand out more than the text
+  - A column of identical icons is fine when every row is the same kind of thing (for example, an orange warning icon on each problem in a list of problems). It shows the kind at a glance; do not vary icons only for variety
 - **What not to use**
   - Photos, illustrations, or images from image-generation AI. They do not match in style and their text cannot be edited
   - External icon sets. If you use one, check its license and get the user's permission before downloading any file

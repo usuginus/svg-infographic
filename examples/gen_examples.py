@@ -49,10 +49,10 @@ done(s, "intro")
 s = Slide("The check loop", "Order of messages between you, Claude, the parts library, and the browser")
 s.header("Claude fixes the layout until the browser reports nothing", "Sequence diagram")
 _, bottom = s.sequence(70, [
-    ("you", "You", None, None),
-    ("claude", "Claude", None, C.PRIMARY),
-    ("parts", "svgparts", "parts library", None),
-    ("browser", "Browser", "headless", None),
+    ("you", "You", None, None, "user"),
+    ("claude", "Claude", None, C.PRIMARY, "ai"),
+    ("parts", "svgparts", "parts library", None, "container"),
+    ("browser", "Browser", "headless", None, "laptop"),
 ], [
     ("you", "claude", "Diagram this design doc", None),
     ("claude", "parts", "Write the figure with parts", None),
@@ -82,7 +82,7 @@ y = s.before_after(70, [
     ("Literal words: \"respond to the outage\"", True),
     ("Overflow is measured and fixed", True),
     ("Orange is a problem, green is done", True),
-], titles=("Without the skill", "With the skill"))
+], titles=("Without the skill", "With the skill"), icons=("warning", "check"))
 s.section(y + 40, "The same text, written both ways")
 hw = (s.W - 2 * s.M - 64) / 2
 for row, (before_label, before_text, after_label, after_text) in enumerate([
@@ -110,22 +110,23 @@ s.table(s.M, 70, s.W - 2 * s.M, ["Problem", "What it means", "Typical fix"], [16
     ("Arrow enters a box", "An arrow runs into a card it does not point to", "Route it around the card"),
     ("Filled area over text", "A shaded area in a schematic covers a label", "Move the label off the area"),
     ("Outside the canvas", "Text is cut off at the edge of the slide", "Move it inside the margins"),
-], row_h=34)
+], row_h=34, row_icons=[("warning", C.ORANGE)] * 7)
 s.section(400, "What is still checked by eye")
 s.rule_row(s.M, 418, s.W - 2 * s.M, "check() reports nothing", "Open the PNG and look at it",
-           "No overflow, overlap, or arrow problems", "Spacing, balance, and whether the message is clear", C.GREEN)
+           "No overflow, overlap, or arrow problems", "Spacing, balance, and whether the message is clear", C.GREEN,
+           cond_icon="check", result_icon="search")
 done(s, "gallery-3-check")
 
 
 # ---- Gallery 4: the parts, as a tree ----
 s = Slide("The parts library", "Parts of svgparts grouped by what they draw")
 s.header("Every part belongs to one of four groups", "Hierarchy")
-y = s.tree(64, ("svgparts", "Python standard library only", [
-    ("Text and cards", None, [], None),
-    ("Flows and diagrams", None, [], C.PRIMARY),
-    ("Time and ranges", None, [], None),
-    ("Rules and changes", None, [], None),
-], None), box_w=200)
+y = s.tree(64, ("svgparts", "Standard library only", [
+    ("Text and cards", None, [], None, "document"),
+    ("Flows and diagrams", None, [], C.PRIMARY, "workflow"),
+    ("Time and ranges", None, [], None, "clock"),
+    ("Rules and changes", None, [], None, "flag"),
+], None, "container"), box_w=200)
 gw, gxs = s.columns(4, 16)
 for x, parts in zip(gxs, [
     ["header, section", "text, paragraph", "card, pill, status", "stat, stats", "table", "action_list"],

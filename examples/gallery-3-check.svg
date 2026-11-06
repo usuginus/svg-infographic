@@ -5,43 +5,53 @@
 <text x="24.0" y="42.0" font-size="20" font-weight="600" fill="#1E293B" text-anchor="start" data-maxw="692.0">check() finds what an estimate of text width cannot</text>
 <text x="936.0" y="42.0" font-size="12" font-weight="400" fill="#64748B" text-anchor="end">Comparison</text>
 <rect x="24.0" y="70.0" width="912.0" height="268.0" rx="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1" filter="url(#sh)" data-part="box"/>
-<text x="40.0" y="90.0" font-size="12" font-weight="500" fill="#64748B" text-anchor="start">Problem</text>
-<text x="254.0" y="90.0" font-size="12" font-weight="500" fill="#64748B" text-anchor="start">What it means</text>
-<text x="624.0" y="90.0" font-size="12" font-weight="500" fill="#64748B" text-anchor="start">Typical fix</text>
+<path d="M25.0,100.0 V82.0 A11,11 0 0 1 36.0,71.0 H924.0 A11,11 0 0 1 935.0,82.0 V100.0 Z" fill="#F1F5F9"/>
+<text x="40.0" y="89.5" font-size="12" font-weight="600" fill="#64748B" text-anchor="start">Problem</text>
+<text x="254.0" y="89.5" font-size="12" font-weight="600" fill="#64748B" text-anchor="start">What it means</text>
+<text x="624.0" y="89.5" font-size="12" font-weight="600" fill="#64748B" text-anchor="start">Typical fix</text>
 <line x1="24.0" y1="100.0" x2="936.0" y2="100.0" stroke="#E2E8F0" stroke-width="1"/>
-<text x="40.0" y="122.0" font-size="13" font-weight="400" fill="#1E293B" text-anchor="start" data-maxw="202.0">Overflow</text>
+<g transform="translate(40.0,108.0) scale(0.7500)" fill="none" stroke="#F97316" stroke-width="2.33" stroke-linecap="round" stroke-linejoin="round"><path d="M12,3.5 L21.5,20 H2.5 Z"/><path d="M12,9.5 V14"/><circle cx="12" cy="17" r="0.9" fill="#F97316" stroke="none"/></g>
+<text x="66.0" y="122.0" font-size="13" font-weight="400" fill="#1E293B" text-anchor="start" data-maxw="176.0">Overflow</text>
 <text x="254.0" y="122.0" font-size="12.5" font-weight="400" fill="#1E293B" text-anchor="start" data-maxw="358.0">Text is wider than the space given to it</text>
 <text x="624.0" y="122.0" font-size="12.5" font-weight="400" fill="#1E293B" text-anchor="start" data-maxw="300.0">Shorten it or let it wrap</text>
 <line x1="24.0" y1="134.0" x2="936.0" y2="134.0" stroke="#E2E8F0" stroke-width="1"/>
-<text x="40.0" y="156.0" font-size="13" font-weight="400" fill="#1E293B" text-anchor="start" data-maxw="202.0">Crosses a box edge</text>
+<g transform="translate(40.0,142.0) scale(0.7500)" fill="none" stroke="#F97316" stroke-width="2.33" stroke-linecap="round" stroke-linejoin="round"><path d="M12,3.5 L21.5,20 H2.5 Z"/><path d="M12,9.5 V14"/><circle cx="12" cy="17" r="0.9" fill="#F97316" stroke="none"/></g>
+<text x="66.0" y="156.0" font-size="13" font-weight="400" fill="#1E293B" text-anchor="start" data-maxw="176.0">Crosses a box edge</text>
 <text x="254.0" y="156.0" font-size="12.5" font-weight="400" fill="#1E293B" text-anchor="start" data-maxw="358.0">Text starts inside a card and ends outside</text>
 <text x="624.0" y="156.0" font-size="12.5" font-weight="400" fill="#1E293B" text-anchor="start" data-maxw="300.0">Move it or widen the card</text>
 <line x1="24.0" y1="168.0" x2="936.0" y2="168.0" stroke="#E2E8F0" stroke-width="1"/>
-<text x="40.0" y="190.0" font-size="13" font-weight="400" fill="#1E293B" text-anchor="start" data-maxw="202.0">Overlapping text</text>
+<g transform="translate(40.0,176.0) scale(0.7500)" fill="none" stroke="#F97316" stroke-width="2.33" stroke-linecap="round" stroke-linejoin="round"><path d="M12,3.5 L21.5,20 H2.5 Z"/><path d="M12,9.5 V14"/><circle cx="12" cy="17" r="0.9" fill="#F97316" stroke="none"/></g>
+<text x="66.0" y="190.0" font-size="13" font-weight="400" fill="#1E293B" text-anchor="start" data-maxw="176.0">Overlapping text</text>
 <text x="254.0" y="190.0" font-size="12.5" font-weight="400" fill="#1E293B" text-anchor="start" data-maxw="358.0">Two pieces of text share the same space</text>
 <text x="624.0" y="190.0" font-size="12.5" font-weight="400" fill="#1E293B" text-anchor="start" data-maxw="300.0">Add spacing between rows</text>
 <line x1="24.0" y1="202.0" x2="936.0" y2="202.0" stroke="#E2E8F0" stroke-width="1"/>
-<text x="40.0" y="224.0" font-size="13" font-weight="400" fill="#1E293B" text-anchor="start" data-maxw="202.0">Line or arrow on text</text>
+<g transform="translate(40.0,210.0) scale(0.7500)" fill="none" stroke="#F97316" stroke-width="2.33" stroke-linecap="round" stroke-linejoin="round"><path d="M12,3.5 L21.5,20 H2.5 Z"/><path d="M12,9.5 V14"/><circle cx="12" cy="17" r="0.9" fill="#F97316" stroke="none"/></g>
+<text x="66.0" y="224.0" font-size="13" font-weight="400" fill="#1E293B" text-anchor="start" data-maxw="176.0">Line or arrow on text</text>
 <text x="254.0" y="224.0" font-size="12.5" font-weight="400" fill="#1E293B" text-anchor="start" data-maxw="358.0">A line crosses or touches a label</text>
 <text x="624.0" y="224.0" font-size="12.5" font-weight="400" fill="#1E293B" text-anchor="start" data-maxw="300.0">Move the label beside the line</text>
 <line x1="24.0" y1="236.0" x2="936.0" y2="236.0" stroke="#E2E8F0" stroke-width="1"/>
-<text x="40.0" y="258.0" font-size="13" font-weight="400" fill="#1E293B" text-anchor="start" data-maxw="202.0">Arrow enters a box</text>
+<g transform="translate(40.0,244.0) scale(0.7500)" fill="none" stroke="#F97316" stroke-width="2.33" stroke-linecap="round" stroke-linejoin="round"><path d="M12,3.5 L21.5,20 H2.5 Z"/><path d="M12,9.5 V14"/><circle cx="12" cy="17" r="0.9" fill="#F97316" stroke="none"/></g>
+<text x="66.0" y="258.0" font-size="13" font-weight="400" fill="#1E293B" text-anchor="start" data-maxw="176.0">Arrow enters a box</text>
 <text x="254.0" y="258.0" font-size="12.5" font-weight="400" fill="#1E293B" text-anchor="start" data-maxw="358.0">An arrow runs into a card it does not point to</text>
 <text x="624.0" y="258.0" font-size="12.5" font-weight="400" fill="#1E293B" text-anchor="start" data-maxw="300.0">Route it around the card</text>
 <line x1="24.0" y1="270.0" x2="936.0" y2="270.0" stroke="#E2E8F0" stroke-width="1"/>
-<text x="40.0" y="292.0" font-size="13" font-weight="400" fill="#1E293B" text-anchor="start" data-maxw="202.0">Filled area over text</text>
+<g transform="translate(40.0,278.0) scale(0.7500)" fill="none" stroke="#F97316" stroke-width="2.33" stroke-linecap="round" stroke-linejoin="round"><path d="M12,3.5 L21.5,20 H2.5 Z"/><path d="M12,9.5 V14"/><circle cx="12" cy="17" r="0.9" fill="#F97316" stroke="none"/></g>
+<text x="66.0" y="292.0" font-size="13" font-weight="400" fill="#1E293B" text-anchor="start" data-maxw="176.0">Filled area over text</text>
 <text x="254.0" y="292.0" font-size="12.5" font-weight="400" fill="#1E293B" text-anchor="start" data-maxw="358.0">A shaded area in a schematic covers a label</text>
 <text x="624.0" y="292.0" font-size="12.5" font-weight="400" fill="#1E293B" text-anchor="start" data-maxw="300.0">Move the label off the area</text>
 <line x1="24.0" y1="304.0" x2="936.0" y2="304.0" stroke="#E2E8F0" stroke-width="1"/>
-<text x="40.0" y="326.0" font-size="13" font-weight="400" fill="#1E293B" text-anchor="start" data-maxw="202.0">Outside the canvas</text>
+<g transform="translate(40.0,312.0) scale(0.7500)" fill="none" stroke="#F97316" stroke-width="2.33" stroke-linecap="round" stroke-linejoin="round"><path d="M12,3.5 L21.5,20 H2.5 Z"/><path d="M12,9.5 V14"/><circle cx="12" cy="17" r="0.9" fill="#F97316" stroke="none"/></g>
+<text x="66.0" y="326.0" font-size="13" font-weight="400" fill="#1E293B" text-anchor="start" data-maxw="176.0">Outside the canvas</text>
 <text x="254.0" y="326.0" font-size="12.5" font-weight="400" fill="#1E293B" text-anchor="start" data-maxw="358.0">Text is cut off at the edge of the slide</text>
 <text x="624.0" y="326.0" font-size="12.5" font-weight="400" fill="#1E293B" text-anchor="start" data-maxw="300.0">Move it inside the margins</text>
 <text x="24.0" y="400.0" font-size="15" font-weight="600" fill="#1E293B" text-anchor="start" data-maxw="912.0">What is still checked by eye</text>
 <rect x="24.0" y="418.0" width="356.2" height="64.0" rx="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1" filter="url(#sh)" data-part="box"/>
-<text x="44.0" y="445.0" font-size="14" font-weight="600" fill="#1E293B" text-anchor="start" data-maxw="316.2">check() reports nothing</text>
+<g transform="translate(44.0,428.0) scale(0.9167)" fill="none" stroke="#64748B" stroke-width="1.91" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8,12.3 L11,15.3 L16.3,9.3"/></g>
+<text x="74.0" y="445.0" font-size="14" font-weight="600" fill="#1E293B" text-anchor="start" data-maxw="286.2">check() reports nothing</text>
 <text x="44.0" y="466.0" font-size="12" font-weight="400" fill="#64748B" text-anchor="start" data-maxw="316.2">No overflow, overlap, or arrow problems</text>
 <rect x="444.2" y="418.0" width="491.8" height="64.0" rx="12" fill="#FFFFFF" stroke="#10B981" stroke-width="1" filter="url(#sh)" data-part="box"/>
-<text x="464.2" y="445.0" font-size="14" font-weight="600" fill="#10B981" text-anchor="start" data-maxw="451.8">Open the PNG and look at it</text>
+<g transform="translate(464.2,428.0) scale(0.9167)" fill="none" stroke="#10B981" stroke-width="1.91" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5,15.5 L21,21"/></g>
+<text x="494.2" y="445.0" font-size="14" font-weight="600" fill="#10B981" text-anchor="start" data-maxw="421.8">Open the PNG and look at it</text>
 <text x="464.2" y="466.0" font-size="12" font-weight="400" fill="#64748B" text-anchor="start" data-maxw="451.8">Spacing, balance, and whether the message is clear</text>
 <path d="M388.2,450.0 L436.2,450.0 M430.4,454.0 L436.2,450.0 L430.4,446.0" stroke="#94A3B8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none" data-part="arrow"/>
 <text x="412.2" y="442.0" font-size="12" font-weight="400" fill="#64748B" text-anchor="middle">Yes</text>
