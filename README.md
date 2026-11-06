@@ -89,7 +89,7 @@ tests/                                   # unit tests
 
 ## Contributing
 
-Bug reports and new parts are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md). Report security issues privately as described in [SECURITY.md](SECURITY.md).
+Bug reports and new parts are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) and the [changelog](CHANGELOG.md). Report security issues privately as described in [SECURITY.md](SECURITY.md).
 
 ## License
 

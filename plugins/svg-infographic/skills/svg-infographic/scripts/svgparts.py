@@ -17,6 +17,11 @@ CLI:
 Colors, sizes, and weights follow the rules in SKILL.md. To change how a part looks,
 change this file so that every figure stays consistent.
 """
+__all__ = [
+    "C", "FONT", "ICONS", "CHECK_KINDS", "Slide", "Sketch",
+    "check", "render", "catalog", "find_browser", "text_width", "wrap", "tint", "theme_colors",
+]
+
 import os
 import pathlib
 import re
@@ -942,6 +947,14 @@ def render(svg_path, png_path, scale=2):
                    check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     return png_abs
 
+
+# Every problem check() reports starts with one of these kinds followed by ": ". The kinds are part of the
+# public API; the text after the colon is not.
+CHECK_KINDS = (
+    "Overflow", "Outside the canvas", "Crosses the edge of a box", "Overlapping text",
+    "Arrow crosses text", "Line crosses text", "Arrow touches text", "Line touches text",
+    "Arrow enters a box", "Filled area covers text",
+)
 
 # Runs in the browser. Collects layout problems as strings into the element #out.
 _CHECK_JS = r"""
