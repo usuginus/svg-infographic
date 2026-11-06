@@ -81,6 +81,8 @@ s.render("/path/out.png")   # also writes /path/out.svg and runs check()
 
 `box()` (and so `decision`, `terminal`, `swimlane`, and `tree`) wraps a title that does not fit to two lines. `box(..., icon=)` puts an icon left of the text. `sequence` actors and `tree` nodes take an icon as an optional fifth element, `rule_row` takes `cond_icon` / `result_icon`, and `before_after` takes `icons=(before, after)`.
 
+Items passed to the parts can be plain tuples or named items, which are easier to read and let you leave out optional fields: `Stat`, `FlowStep`, `ChainNode`, `Event`, `Step`, `Actor`, `Message`, `Action`, `Lane`, `LaneStep`, `TreeNode`, `Bar`, and `RoadmapRow`. For example, `Actor("you", "You", icon="user")` is the same as `("you", "You", None, None, "user")`.
+
 Descriptions in `flow`, `chain` / `node`, and `timeline` can be a list of lines or a single string. A string is wrapped to the width of the part, and more than two lines is reported as a warning.
 
 There are 24 icons: `user` `users` `building` `server` `database` `laptop` `ai` `container` `wallet` `coin` `point` `warning` `check` `clock` `lock` `key` `document` `bell` `flag` `shield` `search` `funnel` `queue` `workflow`. Check their shapes with `python3 scripts/svgparts.py icons out.png`. To add a missing icon, add it to `ICONS` and check its shape in the catalog before using it (strokes only, inside 2–22 of a 24×24 grid).
