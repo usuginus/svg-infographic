@@ -240,6 +240,7 @@ class CheckTest(unittest.TestCase):
         sk.label(0.45, 0.5, "covered")
         s.save(self.path("broken.svg"), quiet=True)
         kinds = {i.split(":")[0] for i in check(self.path("broken.svg"))}
+        self.assertLessEqual(kinds, set(svgparts.CHECK_KINDS))
         self.assertEqual(kinds, {"Overflow", "Crosses the edge of a box", "Overlapping text",
                                  "Arrow crosses text", "Arrow enters a box", "Outside the canvas",
                                  "Filled area covers text"})

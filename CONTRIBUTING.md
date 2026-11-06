@@ -27,11 +27,35 @@ The parts library is `plugins/svg-infographic/skills/svg-infographic/scripts/svg
 2. Use the gallery in `tests/test_svgparts.py`: add the part to one of the gallery slides with its default spacing. The tests require no warnings and no `check()` problems.
 3. Add the part to the parts table in `SKILL.md`, and to "When to use icons and diagrams" if it is for a new kind of figure.
 4. Redraw the README images with `python3 examples/gen_examples.py` and look at the PNGs.
-5. Bump `version` in both `.claude-plugin/marketplace.json` and `plugins/svg-infographic/.claude-plugin/plugin.json` (minor for a new part or option, patch for a fix).
+5. Add an entry under `[Unreleased]` in `CHANGELOG.md`. Do not change `version`; it is bumped when a release is made.
+6. If a public signature changed, run `python3 tests/test_api.py --update` and say so in the changelog entry.
 
 ## Changing the rules in SKILL.md
 
 `SKILL.md` is what Claude reads. Write rules as plain instructions, and give a literal example when a rule could be misread. The wording rules apply to the skill's own text as well: no metaphors, and no numbers that change over time.
+
+## Compatibility
+
+The public API is what `svgparts.__all__` lists, the public methods of `Slide` and `Sketch` with their arguments, the theme keys (the color role names in `C`), and the problem kinds in `CHECK_KINDS`. Names that start with `_`, the `data-part` attributes in the SVG, and the text after the kind in a `check()` message are internal.
+
+Versions follow [Semantic Versioning](https://semver.org/):
+
+| Change | Version |
+|--------|---------|
+| A bug fix | patch |
+| A new part, a new optional argument, a new icon, or a new problem kind | minor |
+| A change to default spacing, colors, or the look of a part | minor |
+| Removing or renaming a part, an argument, or a problem kind; changing the order of positional arguments | major |
+
+The look of a figure can change in a minor release; the code that draws it keeps working. Before removing or renaming something, keep the old name for at least one minor release and make it emit a `DeprecationWarning`.
+
+`tests/test_api.py` records every public signature in `tests/public_api.txt`, so an unintended change fails the tests.
+
+## Releases
+
+1. Move the `[Unreleased]` entries in `CHANGELOG.md` under a new version heading with the date.
+2. Set `version` in `.claude-plugin/marketplace.json` (both places) and `plugins/svg-infographic/.claude-plugin/plugin.json`. The tests check that they match and that the changelog has the version.
+3. Merge, then create a GitHub release `vX.Y.Z` from `main` with the changelog entry as the notes.
 
 ## Pull requests
 
