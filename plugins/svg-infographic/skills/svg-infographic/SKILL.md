@@ -74,6 +74,12 @@ s.render("/path/out.png")   # also writes /path/out.svg and runs check()
 | `sequence(y, actors, messages)` | Sequence diagram: a box and dashed lifeline per actor, and numbered messages in order. Returns the x of each actor and the y below the last message |
 | `rule_row(x, y, w, cond, result, cond_sub, result_sub, color)` | One "if this, then that" row: condition card, labeled arrow, and result card in the accent color |
 | `action_list(y, items)` | Rows of follow-up actions with a title, description, and status |
+| `swimlane(y, lanes, steps, edges)` | Swimlane: one band per owner, boxes placed by lane and column, joined by right-angle arrows |
+| `before_after(y, before, after)` | Before and after cards with an arrow between them. Lines given as `(text, True)` are colored as changed |
+| `tree(y, root)` | Hierarchy such as an org chart. Leaves are spread evenly and each parent is centered over its children |
+| `roadmap(y, periods, rows)` | Roadmap: equal period columns and one row per team, with bars placed in period units |
+
+`box()` (and so `decision`, `terminal`, `swimlane`, and `tree`) wraps a title that does not fit to two lines.
 
 Descriptions in `flow`, `chain` / `node`, and `timeline` can be a list of lines or a single string. A string is wrapped to the width of the part, and more than two lines is reported as a warning.
 
@@ -107,7 +113,10 @@ There are 24 icons: `user` `users` `building` `server` `database` `laptop` `ai` 
   - The point is the size of a range (response time 120–300 ms, etc.) → `range_bar`. Make charts that compare values precisely with a charting library or skill
   - The point is a share of a whole → `ratio`
   - Boundaries of a range ("before the email is sent" and "after it is sent", etc.) → `span`
-  - Differences before and after a change → cards side by side, coloring only the parts that changed
+  - Differences before and after a change → `before_after`, coloring only the lines that changed
+  - Who does each step of a process is the point (hand-offs between people, teams, or systems) → `swimlane`
+  - Reporting lines or ownership (org chart, system components by team) → `tree`
+  - Plans over quarters or months by team → `roadmap`. Do not put "today" markers or progress percentages on it; they change over time
   - Use rows of text boxes (`flow`) for procedures without branches and for chains of causes
 - **How to draw arrows**
   - Arrows are at least 28px long (`elbow` and `connector` warn when they are shorter). Short arrows squash the head and hide the direction. When placing nodes side by side, leave at least 40px between them
@@ -162,7 +171,7 @@ There are 24 icons: `user` `users` `building` `server` `database` `laptop` `ai` 
 | Secondary text | `#64748B` | `C.SUB` |
 | Arrows, connectors | `#94A3B8` | `C.ARROW` |
 
-If the user specifies colors, use theirs.
+If the user specifies colors, pass them as a theme: `Slide(..., theme={"PRIMARY": "#7C3AED"})`. The keys are the role names in `C` (`PRIMARY`, `ORANGE`, `GREEN`, `TEXT`, and so on). Light backgrounds (`PRIMARY_BG`, `ORANGE_BG`, `GREEN_BG`) and `ORANGE_LINE` are derived from their main color unless given. Colors are swapped when the SVG is saved, so every part follows the theme. Keep the meaning of each role: whatever color replaces orange still marks problems.
 
 ## Text
 

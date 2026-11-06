@@ -242,9 +242,37 @@ def wrap(s, max_width, size=13):
     return lines
 
 
+def _mix(hex_color, other, t):
+    """Blend hex_color toward other by t (0-1)."""
+    a = [int(hex_color[i:i + 2], 16) for i in (1, 3, 5)]
+    b = [int(other[i:i + 2], 16) for i in (1, 3, 5)]
+    return "#" + "".join(f"{round(x + (y - x) * t):02X}" for x, y in zip(a, b))
+
+
+def theme_colors(theme):
+    """Expand a theme such as {"PRIMARY": "#7C3AED"} to every C role it affects. A missing light background
+    (PRIMARY_BG, ORANGE_BG, GREEN_BG) or ORANGE_LINE is derived from its main color."""
+    out = {}
+    for k, v in (theme or {}).items():
+        if not hasattr(C, k):
+            raise ValueError(f"Unknown color role in theme: {k}")
+        if not re.fullmatch(r"#[0-9A-Fa-f]{6}", v):
+            raise ValueError(f"Theme colors must be #RRGGBB: {k}={v}")
+        out[k] = v.upper()
+    for main, bg in (("PRIMARY", "PRIMARY_BG"), ("ORANGE", "ORANGE_BG"), ("GREEN", "GREEN_BG")):
+        if main in out and bg not in out:
+            out[bg] = _mix(out[main], "#FFFFFF", 0.92)
+    if "ORANGE" in out and "ORANGE_LINE" not in out:
+        out["ORANGE_LINE"] = _mix(out["ORANGE"], "#FFFFFF", 0.45)
+    return out
+
+
 class Slide:
-    def __init__(self, title, description, width=960, height=540, margin=24, pad=20):
+    def __init__(self, title, description, width=960, height=540, margin=24, pad=20, theme=None):
+        """theme maps C role names to colors, for example {"PRIMARY": "#7C3AED", "GREEN": "#0F766E"}.
+        The colors are swapped when the SVG is saved, so every part follows the theme."""
         self.W, self.H, self.M, self.PAD = width, height, margin, pad
+        self.theme = theme_colors(theme)
         self.out = []
         self.warnings = []
         a = self.out.append
@@ -442,14 +470,20 @@ class Slide:
 
     # ---- decision diagrams ----
     def box(self, x, y, w, h, title, sub=None, fill=C.CARD, border=C.LINE, color=C.TEXT, rx=10, size=13):
-        """Process step in a decision diagram (rectangle without shadow). Text is centered."""
+        """Process step in a decision diagram (rectangle without shadow). Text is centered.
+        Without sub, a title wider than the box is wrapped to two lines."""
         self.raw(f'<rect x="{x:.1f}" y="{y:.1f}" width="{w:.1f}" height="{h:.1f}" rx="{rx}" fill="{fill}" '
                  f'stroke="{border}" stroke-width="1.2" data-part="box"/>')
         if sub:
             self.text(x + w / 2, y + h / 2 - 3, title, size, color, 600, "middle", max_width=w - 16)
             self.text(x + w / 2, y + h / 2 + 14, sub, 12, C.SUB, 400, "middle", max_width=w - 16)
         else:
-            self.text(x + w / 2, y + h / 2 + size * 0.36, title, size, color, 600, "middle", max_width=w - 16)
+            lines = wrap(title, w - 16, size)
+            if len(lines) == 2:
+                self.text(x + w / 2, y + h / 2 - 3, lines[0], size, color, 600, "middle", max_width=w - 16)
+                self.text(x + w / 2, y + h / 2 + 14, lines[1], size, color, 600, "middle", max_width=w - 16)
+            else:
+                self.text(x + w / 2, y + h / 2 + size * 0.36, title, size, color, 600, "middle", max_width=w - 16)
 
     def decision(self, x, y, w, h, label):
         """Decision in a decision diagram ("Has a plan?", etc.). Light blue and rounded, unlike process boxes."""
@@ -653,11 +687,156 @@ class Slide:
             self.status(x + w - status_w, ry + h / 2 + 5, st, color)
         return y + len(items) * (h + gap) - gap
 
+    # ---- swimlanes, before/after, trees, roadmaps ----
+    def swimlane(self, y, lanes, steps, edges=None, cols=None, lane_h=88, label_w=None, gap=72, box_h=48):
+        """Swimlane diagram. lanes = [(key, name), ...] are horizontal bands, one per owner.
+        steps = [(lane_key, col, title, accent or None), ...] place a box in a lane at column col (0-based).
+        edges = [(i, j, label or None), ...] join steps by index; by default each step joins the next.
+        label_w defaults to the widest lane name plus 40px. Returns y below the last lane."""
+        cols = cols or max(c for _, c, _, _ in steps) + 1
+        if label_w is None:
+            label_w = max(text_width(name, 13) for _, name in lanes) + 40
+        x0 = self.M + label_w
+        col_w = (self.W - self.M - x0) / cols
+        bw = col_w - gap
+        row = {key: i for i, (key, _) in enumerate(lanes)}
+        for i, (key, name) in enumerate(lanes):
+            ly = y + i * lane_h
+            fill = "#F1F5F9" if i % 2 == 0 else C.BG
+            self.raw(f'<rect x="{self.M:.1f}" y="{ly:.1f}" width="{self.W - 2 * self.M:.1f}" height="{lane_h}" '
+                     f'fill="{fill}"/>')
+            self.text(self.M + 14, ly + lane_h / 2 + 5, name, 13, C.TEXT, 600, max_width=label_w - 24)
+        self.line(x0, y, x0, y + len(lanes) * lane_h, C.LINE, 1)
+        boxes = []
+        for lane, col, title, accent in steps:
+            bx = x0 + col * col_w + gap / 2
+            by = y + row[lane] * lane_h + (lane_h - box_h) / 2
+            self.box(bx, by, bw, box_h, title, color=accent or C.TEXT, border=accent or C.LINE)
+            boxes.append((bx, by))
+        if edges is None:
+            edges = [(i, i + 1, None) for i in range(len(steps) - 1)]
+        for i, j, label in edges:
+            (ax, ay), (bx, by) = boxes[i], boxes[j]
+            ca, cb = steps[i][1], steps[j][1]
+            if ay == by:
+                d = 1 if bx > ax else -1
+                x1, x2 = (ax + bw, bx) if d > 0 else (ax, bx + bw)
+                self.connector(x1 + 6 * d, ay + box_h / 2, x2 - 6 * d, by + box_h / 2)
+                if label:
+                    self.edge_label((x1 + x2) / 2, ay + box_h / 2 - 16, label)
+            elif ca == cb:
+                d = 1 if by > ay else -1
+                y1, y2 = (ay + box_h, by) if d > 0 else (ay, by + box_h)
+                self.elbow([(ax + bw / 2, y1 + 4 * d), (bx + bw / 2, y2 - 4 * d)])
+                if label:
+                    self.edge_label(ax + bw / 2 + 8 + text_width(label, 12) / 2, (y1 + y2) / 2, label)
+            else:
+                d = 1 if bx > ax else -1
+                sx = ax + bw if d > 0 else ax
+                ex = bx if d > 0 else bx + bw
+                mx = (sx + ex) / 2
+                self.elbow([(sx + 4 * d, ay + box_h / 2), (mx, ay + box_h / 2), (mx, by + box_h / 2),
+                            (ex - 6 * d, by + box_h / 2)])
+                if label:
+                    self.edge_label(mx, (ay + by + box_h) / 2, label)
+        return y + len(lanes) * lane_h
+
+    def before_after(self, y, before, after, titles=("Before", "After"), h=None, gap=64, step=26):
+        """Two cards side by side with an arrow between them. before and after are lists of lines; a line given as
+        (text, True) is a changed line and is colored (orange before, green after). Returns y below the cards."""
+        w = (self.W - 2 * self.M - gap) / 2
+        n = max(len(before), len(after))
+        h = h or 56 + n * step
+        for k, (x, title, items, color) in enumerate([(self.M, titles[0], before, C.ORANGE),
+                                                       (self.M + w + gap, titles[1], after, C.GREEN)]):
+            self.card(x, y, w, h)
+            self.text(x + self.PAD, y + 30, title, 15, C.TEXT, 600, max_width=w - 2 * self.PAD)
+            for i, item in enumerate(items):
+                text, changed = (item, False) if isinstance(item, str) else item
+                yy = y + 60 + i * step
+                self.dot(x + self.PAD + 3, yy - 4.5, color if changed else C.ARROW, 3 if changed else 2.5)
+                self.text(x + self.PAD + 14, yy, text, 13, color if changed else C.TEXT, 500 if changed else 400,
+                          max_width=w - 2 * self.PAD - 14)
+        self.connector(self.M + w + 14, y + h / 2, self.M + w + gap - 14, y + h / 2)
+        return y + h
+
+    def tree(self, y, root, box_w=None, box_h=52, level_gap=40, gap=16, left=None, right=None):
+        """Hierarchy such as an org chart. root = (title, sub or None, [children...], accent or None),
+        where each child has the same shape. Leaves are spread evenly; a parent is centered over its children.
+        Returns y below the deepest level."""
+        left = self.M if left is None else left
+        right = self.W - self.M if right is None else right
+
+        def leaves(nd):
+            return 1 if not nd[2] else sum(leaves(c) for c in nd[2])
+
+        def depth(nd):
+            return 1 + max((depth(c) for c in nd[2]), default=0)
+
+        n = leaves(root)
+        slot = (right - left) / n
+        bw = box_w or min(180, slot - gap)
+        if bw > slot - gap:
+            self.warnings.append(f"tree(): boxes of {bw:.0f}px do not fit {n} leaves in {right - left:.0f}px")
+
+        def place(nd, lvl, first):
+            k = leaves(nd)
+            cx = left + (first + k / 2) * slot
+            by = y + lvl * (box_h + level_gap)
+            title, sub, kids, accent = nd
+            self.box(cx - bw / 2, by, bw, box_h, title, sub=sub, color=accent or C.TEXT, border=accent or C.LINE)
+            if kids:
+                mid = by + box_h + level_gap / 2
+                xs, f = [], first
+                for c in kids:
+                    xs.append(place(c, lvl + 1, f))
+                    f += leaves(c)
+                d = (f"M{cx:.1f},{by + box_h:.1f} V{mid:.1f} M{min(xs):.1f},{mid:.1f} H{max(xs):.1f} " +
+                     " ".join(f"M{x:.1f},{mid:.1f} V{mid + level_gap / 2:.1f}" for x in xs))
+                self.raw(f'<path d="{d}" stroke="{C.ARROW}" stroke-width="1.5" fill="none" data-part="line"/>')
+            return cx
+
+        place(root, 0, 0)
+        return y + depth(root) * (box_h + level_gap) - level_gap
+
+    def roadmap(self, y, periods, rows, label_w=150, row_h=40, bar_h=24):
+        """Roadmap. periods = ["Q1", "Q2", ...] are equal columns. rows = [(name, [(start, end, label, color), ...]),
+        ...] where start and end are in period units (0 is the start of the first period, 1.5 is the middle of the
+        second). The label goes inside the bar when it fits, otherwise to its right. Returns y below the last row."""
+        x0, x1 = self.M + label_w, self.W - self.M
+        f = self.scale(x0, x1 - x0, 0, len(periods))
+        top = y + 28
+        for i, p in enumerate(periods):
+            self.text((f(i) + f(i + 1)) / 2, y + 14, p, 12, C.SUB, 500, "middle", max_width=f(1) - f(0) - 8)
+            self.line(f(i), top, f(i), top + len(rows) * row_h, C.LINE, 1)
+        self.line(f(len(periods)), top, f(len(periods)), top + len(rows) * row_h, C.LINE, 1)
+        for r, (name, bars) in enumerate(rows):
+            ry = top + r * row_h
+            self.line(self.M, ry, x1, ry, C.LINE, 1)
+            self.text(self.M, ry + row_h / 2 + 5, name, 13, C.TEXT, 600, max_width=label_w - 12)
+            for start, end, label, color in bars:
+                bx1, bx2 = f(start) + 3, f(end) - 3
+                bg = {C.GREEN: C.GREEN_BG, C.ORANGE: C.ORANGE_BG, C.PRIMARY: C.PRIMARY_BG}.get(color, "#F1F5F9")
+                by = ry + (row_h - bar_h) / 2
+                self.raw(f'<rect x="{bx1:.1f}" y="{by:.1f}" width="{bx2 - bx1:.1f}" height="{bar_h}" rx="6" '
+                         f'fill="{bg}" stroke="{color}" stroke-width="1.2" data-part="box"/>')
+                if text_width(label, 12) <= bx2 - bx1 - 16:
+                    self.text(bx1 + 8, by + bar_h / 2 + 4.3, label, 12, color if color != C.SUB else C.TEXT, 500,
+                              max_width=bx2 - bx1 - 16)
+                else:
+                    self.text(bx2 + 8, by + bar_h / 2 + 4.3, label, 12, C.SUB, 500, max_width=x1 - bx2 - 8)
+        self.line(self.M, top + len(rows) * row_h, x1, top + len(rows) * row_h, C.LINE, 1)
+        return top + len(rows) * row_h
+
     # ---- output ----
     def save(self, path, quiet=False):
         """Write the SVG and print the estimate-based warnings (unless quiet)."""
+        svg = "\n".join(self.out + ["</svg>"]) + "\n"
+        if self.theme:
+            swap = {getattr(C, k).upper(): v for k, v in self.theme.items()}
+            svg = re.sub(r"#[0-9A-Fa-f]{6}\b", lambda m: swap.get(m.group(0).upper(), m.group(0)), svg)
         with open(path, "w", encoding="utf-8") as f:
-            f.write("\n".join(self.out + ["</svg>"]) + "\n")
+            f.write(svg)
         if not quiet:
             for w in self.warnings:
                 print("WARN", w, file=sys.stderr)

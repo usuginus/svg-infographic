@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540" font-family="'Hiragino Sans', 'Yu Gothic UI', 'Noto Sans JP', 'Noto Sans CJK JP', system-ui, sans-serif" role="img" aria-label="Plan for the year by team, drawn with a custom primary color">
+<title>Library systems roadmap</title>
+<defs><filter id="sh" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.07"/></filter></defs>
+<rect width="960" height="540" fill="#F8FAFC"/>
+<text x="24.0" y="42.0" font-size="20" font-weight="600" fill="#1E293B" text-anchor="start" data-maxw="692.0">Web reservations ship in Q2; search moves after that</text>
+<text x="936.0" y="42.0" font-size="12" font-weight="400" fill="#64748B" text-anchor="end">Roadmap</text>
+<text x="24.0" y="84.0" font-size="15" font-weight="600" fill="#1E293B" text-anchor="start" data-maxw="912.0">Plan by team</text>
+<text x="269.2" y="114.0" font-size="12" font-weight="500" fill="#64748B" text-anchor="middle" data-maxw="182.5">Q1</text>
+<line x1="174.0" y1="128.0" x2="174.0" y2="248.0" stroke="#E2E8F0" stroke-width="1"/>
+<text x="459.8" y="114.0" font-size="12" font-weight="500" fill="#64748B" text-anchor="middle" data-maxw="182.5">Q2</text>
+<line x1="364.5" y1="128.0" x2="364.5" y2="248.0" stroke="#E2E8F0" stroke-width="1"/>
+<text x="650.2" y="114.0" font-size="12" font-weight="500" fill="#64748B" text-anchor="middle" data-maxw="182.5">Q3</text>
+<line x1="555.0" y1="128.0" x2="555.0" y2="248.0" stroke="#E2E8F0" stroke-width="1"/>
+<text x="840.8" y="114.0" font-size="12" font-weight="500" fill="#64748B" text-anchor="middle" data-maxw="182.5">Q4</text>
+<line x1="745.5" y1="128.0" x2="745.5" y2="248.0" stroke="#E2E8F0" stroke-width="1"/>
+<line x1="936.0" y1="128.0" x2="936.0" y2="248.0" stroke="#E2E8F0" stroke-width="1"/>
+<line x1="24.0" y1="128.0" x2="936.0" y2="128.0" stroke="#E2E8F0" stroke-width="1"/>
+<text x="24.0" y="153.0" font-size="13" font-weight="600" fill="#1E293B" text-anchor="start" data-maxw="138.0">Web app</text>
+<rect x="177.0" y="136.0" width="279.8" height="24" rx="6" fill="#F5EFFE" stroke="#7C3AED" stroke-width="1.2" data-part="box"/>
+<text x="185.0" y="152.3" font-size="12" font-weight="500" fill="#7C3AED" text-anchor="start" data-maxw="263.8">Web reservations</text>
+<rect x="558.0" y="136.0" width="375.0" height="24" rx="6" fill="#ECFDF5" stroke="#10B981" stroke-width="1.2" data-part="box"/>
+<text x="566.0" y="152.3" font-size="12" font-weight="500" fill="#10B981" text-anchor="start" data-maxw="359.0">Mobile layout</text>
+<line x1="24.0" y1="168.0" x2="936.0" y2="168.0" stroke="#E2E8F0" stroke-width="1"/>
+<text x="24.0" y="193.0" font-size="13" font-weight="600" fill="#1E293B" text-anchor="start" data-maxw="138.0">Library desk</text>
+<rect x="367.5" y="176.0" width="184.5" height="24" rx="6" fill="#FFF7ED" stroke="#F97316" stroke-width="1.2" data-part="box"/>
+<text x="375.5" y="192.3" font-size="12" font-weight="500" fill="#F97316" text-anchor="start" data-maxw="168.5">Self checkout</text>
+<line x1="24.0" y1="208.0" x2="936.0" y2="208.0" stroke="#E2E8F0" stroke-width="1"/>
+<text x="24.0" y="233.0" font-size="13" font-weight="600" fill="#1E293B" text-anchor="start" data-maxw="138.0">Systems</text>
+<rect x="272.2" y="216.0" width="279.8" height="24" rx="6" fill="#F1F5F9" stroke="#64748B" stroke-width="1.2" data-part="box"/>
+<text x="280.2" y="232.3" font-size="12" font-weight="500" fill="#1E293B" text-anchor="start" data-maxw="263.8">Load testing</text>
+<rect x="558.0" y="216.0" width="279.8" height="24" rx="6" fill="#F5EFFE" stroke="#7C3AED" stroke-width="1.2" data-part="box"/>
+<text x="566.0" y="232.3" font-size="12" font-weight="500" fill="#7C3AED" text-anchor="start" data-maxw="263.8">Move search to the new server</text>
+<line x1="24.0" y1="248.0" x2="936.0" y2="248.0" stroke="#E2E8F0" stroke-width="1"/>
+<text x="24.0" y="288.0" font-size="15" font-weight="600" fill="#1E293B" text-anchor="start" data-maxw="912.0">Who owns each part</text>
+<rect x="390.0" y="304.0" width="180.0" height="44.0" rx="10" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.2" data-part="box"/>
+<text x="480.0" y="330.7" font-size="13" font-weight="600" fill="#1E293B" text-anchor="middle" data-maxw="164.0">Library systems</text>
+<rect x="48.0" y="376.0" width="180.0" height="44.0" rx="10" fill="#FFFFFF" stroke="#7C3AED" stroke-width="1.2" data-part="box"/>
+<text x="138.0" y="395.0" font-size="13" font-weight="600" fill="#7C3AED" text-anchor="middle" data-maxw="164.0">Web app</text>
+<text x="138.0" y="412.0" font-size="12" font-weight="400" fill="#64748B" text-anchor="middle" data-maxw="164.0">Web and mobile</text>
+<rect x="276.0" y="376.0" width="180.0" height="44.0" rx="10" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.2" data-part="box"/>
+<text x="366.0" y="395.0" font-size="13" font-weight="600" fill="#1E293B" text-anchor="middle" data-maxw="164.0">Library desk</text>
+<text x="366.0" y="412.0" font-size="12" font-weight="400" fill="#64748B" text-anchor="middle" data-maxw="164.0">Desk tools</text>
+<rect x="618.0" y="376.0" width="180.0" height="44.0" rx="10" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.2" data-part="box"/>
+<text x="708.0" y="395.0" font-size="13" font-weight="600" fill="#1E293B" text-anchor="middle" data-maxw="164.0">Systems</text>
+<text x="708.0" y="412.0" font-size="12" font-weight="400" fill="#64748B" text-anchor="middle" data-maxw="164.0">Servers and data</text>
+<rect x="504.0" y="448.0" width="180.0" height="44.0" rx="10" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.2" data-part="box"/>
+<text x="594.0" y="474.7" font-size="13" font-weight="600" fill="#1E293B" text-anchor="middle" data-maxw="164.0">Search</text>
+<rect x="732.0" y="448.0" width="180.0" height="44.0" rx="10" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.2" data-part="box"/>
+<text x="822.0" y="474.7" font-size="13" font-weight="600" fill="#1E293B" text-anchor="middle" data-maxw="164.0">Database</text>
+<path d="M708.0,420.0 V434.0 M594.0,434.0 H822.0 M594.0,434.0 V448.0 M822.0,434.0 V448.0" stroke="#94A3B8" stroke-width="1.5" fill="none" data-part="line"/>
+<path d="M480.0,348.0 V362.0 M138.0,362.0 H708.0 M138.0,362.0 V376.0 M366.0,362.0 V376.0 M708.0,362.0 V376.0" stroke="#94A3B8" stroke-width="1.5" fill="none" data-part="line"/>
+</svg>
