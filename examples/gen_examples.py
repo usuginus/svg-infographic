@@ -1,4 +1,4 @@
-"""Draw the examples shown in the README. All content is fictional.
+"""Draw the images shown in the README. Each one explains the skill and is itself drawn with the skill.
 
     python3 examples/gen_examples.py
 """
@@ -14,138 +14,127 @@ def done(s, name):
     print(s.render(os.path.join(HERE, f"{name}.png")))
 
 
-# ---- 1. Process flow ----
-s = Slide("Library book reservation flow", "How a patron reserves a book and picks it up, and where the system is involved")
-s.header("Returned books go straight to the next patron in line", "Process flow")
-s.section(96, "From reservation to pickup")
-s.chain(116, [
-    ("user", "Patron", ["Searches the catalog", "and reserves a book"], None),
-    ("server", "Reservation system", ["Checks availability", "and sets the queue"], C.PRIMARY),
-    ("bell", "Notification", ["Emails the patron", "when the book is ready"], None),
-    ("building", "Library desk", ["Patron picks it up", "within 7 days"], C.GREEN),
+# ---- Intro: how the skill works ----
+s = Slide("How svg-infographic works", "Claude decides the message, draws with a parts library, measures the result "
+          "in a browser, and hands over the SVG and PNG")
+s.header("Claude draws the slide, then measures it before you see it", "svg-infographic")
+s.section(84, "From your request to a checked figure")
+w, xs = s.chain(104, [
+    ("document", "Decide", "One conclusion as the heading", None),
+    ("workflow", "Lay out", "Pick the figure type that fits", None),
+    ("container", "Draw", "Parts fix colors, sizes, and weights", None),
+    ("search", "Measure", "Real fonts in a headless browser", C.PRIMARY),
+    ("check", "Deliver", "SVG and PNG, ready for slides", C.GREEN),
 ], h=112)
-s.section(282, "When the book is on loan")
-s.steps(s.M, 318, [
-    ("Join the queue", "Patrons who reserved the same book are queued by request time"),
-    ("Assign on return", "When the book is returned, it goes to the first patron in the queue"),
-    ("Pass it on if not picked up", "The pickup period is 7 days. After that, the next patron gets it"),
-], step=56)
-s.zone(560, 300, 376, 150, "What the patron sees")
-s.bullets(580, 348, 336, [
-    "Two states: \"In queue\" and \"Ready\"",
-    "While in queue, their position is shown",
-    "\"Ready\" is sent by email and on the web",
-], step=34)
-done(s, "example-1-flow")
+draw_x, measure_x = xs[2] + w / 2, xs[3] + w / 2
+s.elbow([(measure_x, 222), (measure_x, 250), (draw_x, 250), (draw_x, 222)], C.PRIMARY)
+s.text((draw_x + measure_x) / 2, 272, "Problems found: fix and render again", 12, C.PRIMARY, 500, "middle",
+       max_width=s.W - 2 * s.M)
+s.section(312, "What every figure gets")
+cw, cxs = s.columns(3, 12)
+for x, (icon, title, desc) in zip(cxs, [
+    ("flag", "Conclusion first", "The heading states what the viewer should take away, not the topic."),
+    ("search", "Measured, not guessed", "Overflow, overlaps, and arrows over text are found with the real fonts."),
+    ("document", "Literal wording", "No metaphors. One meaning per color. Numbers that change over time stay out."),
+]):
+    s.card(x, 328, cw, 130)
+    s.titled(x + s.PAD, 362, icon, title)
+    s.paragraph(x + s.PAD, 392, cw - 2 * s.PAD, desc, 13, C.SUB, max_lines=3)
+s.text(s.M, 496, "Ask for a figure in plain words. The skill is used even if you do not name it.", 13, C.SUB,
+       max_width=s.W - 2 * s.M)
+done(s, "intro")
 
 
-# ---- 2. Comparison table ----
-s = Slide("Comparing notification channels", "Email, push notifications, and SMS compared by speed, cost, and best use")
-s.header("Send urgent notices by push, and notices to keep by email", "Comparison")
-s.section(96, "How the three channels differ")
-s.table(s.M, 112, s.W - 2 * s.M, ["Channel", "Delivery", "Cost", "Kept as a record", "Best for"],
-        [16, 140, 310, 470, 620], [
-    ("Email", "Seconds to minutes", "Nearly free", ("Yes", C.GREEN, 500), "Receipts, confirmations"),
-    ("Push", ("Seconds", C.GREEN, 500), "Nearly free", "Rarely", "Notices with a close deadline"),
-    ("SMS", ("Seconds", C.GREEN, 500), ("Charged per message", C.ORANGE, 500), "On the device", "Verification codes"),
-], highlight=(1,), row_h=44)
-s.section(330, "How to choose")
-y = 350
-for cond, cond_sub, result, result_sub, color in [
-    ("Must it be read today?", "A deadline or pickup period is close",
-     "Send a push notification", "Also email patrons who do not have the app", C.PRIMARY),
-    ("Will they need to look it up later?", "Receipts, confirmations, changes to terms",
-     "Send an email", "Put the topic and date in the subject", C.GREEN),
-]:
-    y = s.rule_row(s.M, y, s.W - 2 * s.M, cond, result, cond_sub, result_sub, color) + 18
-done(s, "example-2-compare")
-
-
-# ---- 3. Incident review ----
-s = Slide("Reservation system incident review", "Timeline and follow-up actions for a search outage on a Monday morning")
-s.header("Cause: a Monday spike maxed out the search server's CPU", "Incident review")
-s.stats(64, [("Downtime", "About 15 min", C.ORANGE, "clock"),
-             ("Affected reservations", "120", C.TEXT, "document"),
-             ("Follow-up actions", "3 (2 done)", C.TEXT, "check")])
-s.section(164, "Timeline")
-s.timeline(222, [
-    ("9:00", "Spike at opening", ["Search responses", "start to slow down"], None),
-    ("9:05", "Search stops", ["CPU hits its limit and", "requests time out"], C.ORANGE),
-    ("9:12", "Servers added", ["Search servers go", "from 2 to 4"], C.PRIMARY),
-    ("9:20", "Recovered", ["Search responds at", "normal speed again"], C.GREEN),
-])
-s.section(340, "Follow-up actions")
-s.action_list(358, [
-    ("Scale up before opening", "Run 4 servers from 8:30 on Mondays and after holidays", "Done", C.GREEN),
-    ("Alert on CPU usage", "Notify the on-call person when CPU stays above 80% for 5 min", "Done", C.GREEN),
-    ("Cache search results", "Return cached results for repeated searches to reduce load", "In progress", C.ORANGE),
-])
-done(s, "example-3-incident")
-
-
-# ---- 4. Sequence diagram ----
-s = Slide("How a reservation is stored", "Order of messages between the patron, web app, API, database, and email service")
-s.header("Only the reservation API writes to the database", "Sequence diagram")
-cx, bottom = s.sequence(70, [
-    ("patron", "Patron", None, None),
-    ("web", "Web app", "browser", None),
-    ("api", "Reservation API", None, C.PRIMARY),
-    ("db", "Database", None, None),
-    ("mail", "Email service", None, None),
+# ---- Gallery 1: the check loop as a sequence diagram ----
+s = Slide("The check loop", "Order of messages between you, Claude, the parts library, and the browser")
+s.header("Claude fixes the layout until the browser reports nothing", "Sequence diagram")
+_, bottom = s.sequence(70, [
+    ("you", "You", None, None),
+    ("claude", "Claude", None, C.PRIMARY),
+    ("parts", "svgparts", "parts library", None),
+    ("browser", "Browser", "headless", None),
 ], [
-    ("patron", "web", "Choose a book", None),
-    ("web", "api", "Request a reservation", None),
-    ("api", "db", "Check availability", C.PRIMARY),
-    ("api", "db", "Save the reservation", C.PRIMARY),
-    ("api", "web", "Queue position", None),
-    ("web", "patron", "Show the position", None),
-    ("api", "mail", "Send the confirmation", None),
-    ("mail", "patron", "Confirmation email", None),
-])
-s.section(bottom + 34, "Why the web app does not write directly")
-s.bullets(s.M, bottom + 62, s.W - 2 * s.M, [
-    "The API is the only place that decides the queue order, so two patrons never get the same position",
-    "Changing the database affects only the API, not the web app",
+    ("you", "claude", "Diagram this design doc", None),
+    ("claude", "parts", "Write the figure with parts", None),
+    ("parts", "browser", "Render the PNG and run check()", None),
+    ("browser", "claude", "Overflow in one card", C.ORANGE),
+    ("claude", "parts", "Shorten the text and render again", None),
+    ("browser", "claude", "No problems found", C.GREEN),
+    ("claude", "you", "SVG, PNG, and what was left out", C.GREEN),
+], step=36)
+s.bullets(s.M, bottom + 36, s.W - 2 * s.M, [
+    "render() runs check() automatically, so every figure is measured before it is shown",
+    "Spacing and balance are still judged by eye in the PNG",
 ], step=26)
-done(s, "example-4-sequence")
+done(s, "gallery-1-sequence")
 
 
-# ---- 5. Swimlane ----
-s = Slide("Who handles a reservation", "Swimlane of the patron, the reservation system, and the library desk")
-s.header("Staff touch a reservation only once, to set the book aside", "Swimlane")
-y = s.swimlane(70, [("patron", "Patron"), ("system", "System"), ("desk", "Library desk")], [
-    ("patron", 0, "Reserve online", None),
-    ("system", 1, "Assign a copy", C.PRIMARY),
-    ("system", 2, "Email the patron", None),
-    ("desk", 2, "Set the book aside", C.ORANGE),
-    ("patron", 3, "Pick it up", C.GREEN),
-])
-s.before_after(y + 24, [
-    "Patrons phone or visit the desk",
-    ("Staff search the shelves for a copy", True),
-    ("Staff call the patron when it is ready", True),
+# ---- Gallery 2: before and after the skill ----
+s = Slide("Before and after the skill", "The same figure rules, with and without the skill")
+s.header("Every figure follows the same rules", "Before and after")
+y = s.before_after(70, [
+    "Heading names the topic",
+    ("Metaphors such as \"fight the fire\"", True),
+    ("Text runs past the edge of a card", True),
+    ("Colors picked anew for each figure", True),
 ], [
-    "Patrons reserve on the web",
-    ("The system assigns a copy", True),
-    ("The system emails the patron", True),
-])
-done(s, "example-5-swimlane")
+    "Heading states the conclusion",
+    ("Literal words: \"respond to the outage\"", True),
+    ("Overflow is measured and fixed", True),
+    ("Orange is a problem, green is done", True),
+], titles=("Without the skill", "With the skill"))
+s.section(y + 40, "The same text, written both ways")
+hw = (s.W - 2 * s.M - 64) / 2
+for row, (before_label, before_text, after_label, after_text) in enumerate([
+    ("Topic", "Cause", "Conclusion", "Cause: bookings pushed CPU to 100%"),
+    ("Metaphor", "We fought the fire all morning", "Literal", "We restored search by 9:20"),
+]):
+    ry = y + 56 + row * 90
+    for x, label, text, color in [(s.M, before_label, before_text, None),
+                                  (s.M + hw + 64, after_label, after_text, C.GREEN)]:
+        s.card(x, ry, hw, 76, color or C.LINE)
+        s.text(x + s.PAD, ry + 26, label, 12, C.SUB, 500)
+        s.text(x + s.PAD, ry + 56, text, 16, C.TEXT, 600, max_width=hw - 2 * s.PAD)
+    s.connector(s.M + hw + 14, ry + 38, s.M + hw + 50, ry + 38)
+done(s, "gallery-2-before-after")
 
 
-# ---- 6. Roadmap with a theme ----
-s = Slide("Library systems roadmap", "Plan for the year by team, drawn with a custom primary color",
-          theme={"PRIMARY": "#7C3AED"})
-s.header("Web reservations ship in Q2; search moves after that", "Roadmap")
-s.section(84, "Plan by team")
-y = s.roadmap(100, ["Q1", "Q2", "Q3", "Q4"], [
-    ("Web app", [(0, 1.5, "Web reservations", C.PRIMARY), (2, 4, "Mobile layout", C.GREEN)]),
-    ("Library desk", [(1, 2, "Self checkout", C.ORANGE)]),
-    ("Systems", [(0.5, 2, "Load testing", C.SUB), (2, 3.5, "Move search to the new server", C.PRIMARY)]),
-])
-s.section(y + 40, "Who owns each part")
-s.tree(y + 56, ("Library systems", None, [
-    ("Web app", "Web and mobile", [], C.PRIMARY),
-    ("Library desk", "Desk tools", [], None),
-    ("Systems", "Servers and data", [("Search", None, [], None), ("Database", None, [], None)], None),
-], None), box_h=44, level_gap=28)
-done(s, "example-6-roadmap")
+# ---- Gallery 3: what check() finds ----
+s = Slide("What check() finds", "Problems check() reports with the real fonts, and what is still checked by eye")
+s.header("check() finds what an estimate of text width cannot", "Comparison")
+s.table(s.M, 70, s.W - 2 * s.M, ["Problem", "What it means", "Typical fix"], [16, 230, 600], [
+    ("Overflow", "Text is wider than the space given to it", "Shorten it or let it wrap"),
+    ("Crosses a box edge", "Text starts inside a card and ends outside", "Move it or widen the card"),
+    ("Overlapping text", "Two pieces of text share the same space", "Add spacing between rows"),
+    ("Line or arrow on text", "A line crosses or touches a label", "Move the label beside the line"),
+    ("Arrow enters a box", "An arrow runs into a card it does not point to", "Route it around the card"),
+    ("Filled area over text", "A shaded area in a schematic covers a label", "Move the label off the area"),
+    ("Outside the canvas", "Text is cut off at the edge of the slide", "Move it inside the margins"),
+], row_h=34)
+s.section(400, "What is still checked by eye")
+s.rule_row(s.M, 418, s.W - 2 * s.M, "check() reports nothing", "Open the PNG and look at it",
+           "No overflow, overlap, or arrow problems", "Spacing, balance, and whether the message is clear", C.GREEN)
+done(s, "gallery-3-check")
+
+
+# ---- Gallery 4: the parts, as a tree ----
+s = Slide("The parts library", "Parts of svgparts grouped by what they draw")
+s.header("Every part belongs to one of four groups", "Hierarchy")
+y = s.tree(64, ("svgparts", "Python standard library only", [
+    ("Text and cards", None, [], None),
+    ("Flows and diagrams", None, [], C.PRIMARY),
+    ("Time and ranges", None, [], None),
+    ("Rules and changes", None, [], None),
+], None), box_w=200)
+gw, gxs = s.columns(4, 16)
+for x, parts in zip(gxs, [
+    ["header, section", "text, paragraph", "card, pill, status", "stat, stats", "table", "action_list"],
+    ["flow, chain, node", "zone, connector", "decision, box, terminal", "swimlane", "sequence", "tree"],
+    ["timeline", "roadmap", "sketch, scale, band", "range_bar", "ratio"],
+    ["rule_row", "before_after", "steps", "bullets", "icon"],
+]):
+    s.card(x, y + 20, gw, 200)
+    s.bullets(x + s.PAD, y + 52, gw - 2 * s.PAD, parts, 13, step=28)
+s.text(s.M, y + 256, "Each part fixes its colors, sizes, and spacing, and warns when its text may not fit.", 13, C.SUB,
+       max_width=s.W - 2 * s.M)
+done(s, "gallery-4-parts")

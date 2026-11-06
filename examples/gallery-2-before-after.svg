@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540" font-family="'Hiragino Sans', 'Yu Gothic UI', 'Noto Sans JP', 'Noto Sans CJK JP', system-ui, sans-serif" role="img" aria-label="The same figure rules, with and without the skill">
+<title>Before and after the skill</title>
+<defs><filter id="sh" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.07"/></filter></defs>
+<rect width="960" height="540" fill="#F8FAFC"/>
+<text x="24.0" y="42.0" font-size="20" font-weight="600" fill="#1E293B" text-anchor="start" data-maxw="692.0">Every figure follows the same rules</text>
+<text x="936.0" y="42.0" font-size="12" font-weight="400" fill="#64748B" text-anchor="end">Before and after</text>
+<rect x="24.0" y="70.0" width="424.0" height="160.0" rx="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1" filter="url(#sh)" data-part="box"/>
+<text x="44.0" y="100.0" font-size="15" font-weight="600" fill="#1E293B" text-anchor="start" data-maxw="384.0">Without the skill</text>
+<circle cx="47.0" cy="125.5" r="2.5" fill="#94A3B8"/>
+<text x="58.0" y="130.0" font-size="13" font-weight="400" fill="#1E293B" text-anchor="start" data-maxw="370.0">Heading names the topic</text>
+<circle cx="47.0" cy="151.5" r="3" fill="#F97316"/>
+<text x="58.0" y="156.0" font-size="13" font-weight="500" fill="#F97316" text-anchor="start" data-maxw="370.0">Metaphors such as "fight the fire"</text>
+<circle cx="47.0" cy="177.5" r="3" fill="#F97316"/>
+<text x="58.0" y="182.0" font-size="13" font-weight="500" fill="#F97316" text-anchor="start" data-maxw="370.0">Text runs past the edge of a card</text>
+<circle cx="47.0" cy="203.5" r="3" fill="#F97316"/>
+<text x="58.0" y="208.0" font-size="13" font-weight="500" fill="#F97316" text-anchor="start" data-maxw="370.0">Colors picked anew for each figure</text>
+<rect x="512.0" y="70.0" width="424.0" height="160.0" rx="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1" filter="url(#sh)" data-part="box"/>
+<text x="532.0" y="100.0" font-size="15" font-weight="600" fill="#1E293B" text-anchor="start" data-maxw="384.0">With the skill</text>
+<circle cx="535.0" cy="125.5" r="2.5" fill="#94A3B8"/>
+<text x="546.0" y="130.0" font-size="13" font-weight="400" fill="#1E293B" text-anchor="start" data-maxw="370.0">Heading states the conclusion</text>
+<circle cx="535.0" cy="151.5" r="3" fill="#10B981"/>
+<text x="546.0" y="156.0" font-size="13" font-weight="500" fill="#10B981" text-anchor="start" data-maxw="370.0">Literal words: "respond to the outage"</text>
+<circle cx="535.0" cy="177.5" r="3" fill="#10B981"/>
+<text x="546.0" y="182.0" font-size="13" font-weight="500" fill="#10B981" text-anchor="start" data-maxw="370.0">Overflow is measured and fixed</text>
+<circle cx="535.0" cy="203.5" r="3" fill="#10B981"/>
+<text x="546.0" y="208.0" font-size="13" font-weight="500" fill="#10B981" text-anchor="start" data-maxw="370.0">Orange is a problem, green is done</text>
+<path d="M462.0,150.0 L498.0,150.0 M492.2,154.0 L498.0,150.0 L492.2,146.0" stroke="#94A3B8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none" data-part="arrow"/>
+<text x="24.0" y="270.0" font-size="15" font-weight="600" fill="#1E293B" text-anchor="start" data-maxw="912.0">The same text, written both ways</text>
+<rect x="24.0" y="286.0" width="424.0" height="76.0" rx="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1" filter="url(#sh)" data-part="box"/>
+<text x="44.0" y="312.0" font-size="12" font-weight="500" fill="#64748B" text-anchor="start">Topic</text>
+<text x="44.0" y="342.0" font-size="16" font-weight="600" fill="#1E293B" text-anchor="start" data-maxw="384.0">Cause</text>
+<rect x="512.0" y="286.0" width="424.0" height="76.0" rx="12" fill="#FFFFFF" stroke="#10B981" stroke-width="1" filter="url(#sh)" data-part="box"/>
+<text x="532.0" y="312.0" font-size="12" font-weight="500" fill="#64748B" text-anchor="start">Conclusion</text>
+<text x="532.0" y="342.0" font-size="16" font-weight="600" fill="#1E293B" text-anchor="start" data-maxw="384.0">Cause: bookings pushed CPU to 100%</text>
+<path d="M462.0,324.0 L498.0,324.0 M492.2,328.0 L498.0,324.0 L492.2,320.0" stroke="#94A3B8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none" data-part="arrow"/>
+<rect x="24.0" y="376.0" width="424.0" height="76.0" rx="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1" filter="url(#sh)" data-part="box"/>
+<text x="44.0" y="402.0" font-size="12" font-weight="500" fill="#64748B" text-anchor="start">Metaphor</text>
+<text x="44.0" y="432.0" font-size="16" font-weight="600" fill="#1E293B" text-anchor="start" data-maxw="384.0">We fought the fire all morning</text>
+<rect x="512.0" y="376.0" width="424.0" height="76.0" rx="12" fill="#FFFFFF" stroke="#10B981" stroke-width="1" filter="url(#sh)" data-part="box"/>
+<text x="532.0" y="402.0" font-size="12" font-weight="500" fill="#64748B" text-anchor="start">Literal</text>
+<text x="532.0" y="432.0" font-size="16" font-weight="600" fill="#1E293B" text-anchor="start" data-maxw="384.0">We restored search by 9:20</text>
+<path d="M462.0,414.0 L498.0,414.0 M492.2,418.0 L498.0,414.0 L492.2,410.0" stroke="#94A3B8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none" data-part="arrow"/>
+</svg>

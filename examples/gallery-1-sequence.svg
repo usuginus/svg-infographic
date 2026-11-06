@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540" font-family="'Hiragino Sans', 'Yu Gothic UI', 'Noto Sans JP', 'Noto Sans CJK JP', system-ui, sans-serif" role="img" aria-label="Order of messages between you, Claude, the parts library, and the browser">
+<title>The check loop</title>
+<defs><filter id="sh" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.07"/></filter></defs>
+<rect width="960" height="540" fill="#F8FAFC"/>
+<text x="24.0" y="42.0" font-size="20" font-weight="600" fill="#1E293B" text-anchor="start" data-maxw="692.0">Claude fixes the layout until the browser reports nothing</text>
+<text x="936.0" y="42.0" font-size="12" font-weight="400" fill="#64748B" text-anchor="end">Sequence diagram</text>
+<rect x="24.0" y="70.0" width="219.0" height="44.0" rx="10" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.2" data-part="box"/>
+<text x="133.5" y="96.7" font-size="13" font-weight="600" fill="#1E293B" text-anchor="middle" data-maxw="203.0">You</text>
+<path d="M133.5,114.0 V390.0" stroke="#E2E8F0" stroke-width="1.5" stroke-dasharray="4 4"/>
+<rect x="255.0" y="70.0" width="219.0" height="44.0" rx="10" fill="#FFFFFF" stroke="#2563EB" stroke-width="1.2" data-part="box"/>
+<text x="364.5" y="96.7" font-size="13" font-weight="600" fill="#2563EB" text-anchor="middle" data-maxw="203.0">Claude</text>
+<path d="M364.5,114.0 V390.0" stroke="#E2E8F0" stroke-width="1.5" stroke-dasharray="4 4"/>
+<rect x="486.0" y="70.0" width="219.0" height="44.0" rx="10" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.2" data-part="box"/>
+<text x="595.5" y="89.0" font-size="13" font-weight="600" fill="#1E293B" text-anchor="middle" data-maxw="203.0">svgparts</text>
+<text x="595.5" y="106.0" font-size="12" font-weight="400" fill="#64748B" text-anchor="middle" data-maxw="203.0">parts library</text>
+<path d="M595.5,114.0 V390.0" stroke="#E2E8F0" stroke-width="1.5" stroke-dasharray="4 4"/>
+<rect x="717.0" y="70.0" width="219.0" height="44.0" rx="10" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.2" data-part="box"/>
+<text x="826.5" y="89.0" font-size="13" font-weight="600" fill="#1E293B" text-anchor="middle" data-maxw="203.0">Browser</text>
+<text x="826.5" y="106.0" font-size="12" font-weight="400" fill="#64748B" text-anchor="middle" data-maxw="203.0">headless</text>
+<path d="M826.5,114.0 V390.0" stroke="#E2E8F0" stroke-width="1.5" stroke-dasharray="4 4"/>
+<path d="M139.5,144.0 L358.5,144.0 M352.7,148.0 L358.5,144.0 L352.7,140.0" stroke="#94A3B8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none" data-part="arrow"/>
+<rect x="158.8" y="125.0" width="180.4" height="15" rx="3" fill="#F8FAFC"/>
+<text x="249.0" y="137.0" font-size="12" font-weight="400" fill="#64748B" text-anchor="middle" data-maxw="912.0" data-online="1">1. Diagram this design doc</text>
+<path d="M370.5,180.0 L589.5,180.0 M583.7,184.0 L589.5,180.0 L583.7,176.0" stroke="#94A3B8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none" data-part="arrow"/>
+<rect x="382.7" y="161.0" width="194.6" height="15" rx="3" fill="#F8FAFC"/>
+<text x="480.0" y="173.0" font-size="12" font-weight="400" fill="#64748B" text-anchor="middle" data-maxw="912.0" data-online="1">2. Write the figure with parts</text>
+<path d="M601.5,216.0 L820.5,216.0 M814.7,220.0 L820.5,216.0 L814.7,212.0" stroke="#94A3B8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none" data-part="arrow"/>
+<rect x="594.1" y="197.0" width="233.8" height="15" rx="3" fill="#F8FAFC"/>
+<text x="711.0" y="209.0" font-size="12" font-weight="400" fill="#64748B" text-anchor="middle" data-maxw="912.0" data-online="1">3. Render the PNG and run check()</text>
+<path d="M820.5,252.0 L370.5,252.0 M376.3,248.0 L370.5,252.0 L376.3,256.0" stroke="#F97316" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none" data-part="arrow"/>
+<rect x="516.4" y="233.0" width="158.2" height="15" rx="3" fill="#F8FAFC"/>
+<text x="595.5" y="245.0" font-size="12" font-weight="500" fill="#F97316" text-anchor="middle" data-maxw="912.0" data-online="1">4. Overflow in one card</text>
+<path d="M370.5,288.0 L589.5,288.0 M583.7,292.0 L589.5,288.0 L583.7,284.0" stroke="#94A3B8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none" data-part="arrow"/>
+<rect x="358.1" y="269.0" width="243.8" height="15" rx="3" fill="#F8FAFC"/>
+<text x="480.0" y="281.0" font-size="12" font-weight="400" fill="#64748B" text-anchor="middle" data-maxw="912.0" data-online="1">5. Shorten the text and render again</text>
+<path d="M820.5,324.0 L370.5,324.0 M376.3,320.0 L370.5,324.0 L376.3,328.0" stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none" data-part="arrow"/>
+<rect x="521.4" y="305.0" width="148.3" height="15" rx="3" fill="#F8FAFC"/>
+<text x="595.5" y="317.0" font-size="12" font-weight="500" fill="#10B981" text-anchor="middle" data-maxw="912.0" data-online="1">6. No problems found</text>
+<path d="M358.5,360.0 L139.5,360.0 M145.3,356.0 L139.5,360.0 L145.3,364.0" stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none" data-part="arrow"/>
+<rect x="132.7" y="341.0" width="232.5" height="15" rx="3" fill="#F8FAFC"/>
+<text x="249.0" y="353.0" font-size="12" font-weight="500" fill="#10B981" text-anchor="middle" data-maxw="912.0" data-online="1">7. SVG, PNG, and what was left out</text>
+<circle cx="27.0" cy="421.4" r="2.5" fill="#94A3B8"/>
+<text x="36.0" y="426.0" font-size="13" font-weight="400" fill="#1E293B" text-anchor="start" data-maxw="900.0">render() runs check() automatically, so every figure is measured before it is shown</text>
+<circle cx="27.0" cy="447.4" r="2.5" fill="#94A3B8"/>
+<text x="36.0" y="452.0" font-size="13" font-weight="400" fill="#1E293B" text-anchor="start" data-maxw="900.0">Spacing and balance are still judged by eye in the PNG</text>
+</svg>

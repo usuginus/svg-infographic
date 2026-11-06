@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540" font-family="'Hiragino Sans', 'Yu Gothic UI', 'Noto Sans JP', 'Noto Sans CJK JP', system-ui, sans-serif" role="img" aria-label="Problems check() reports with the real fonts, and what is still checked by eye">
+<title>What check() finds</title>
+<defs><filter id="sh" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.07"/></filter></defs>
+<rect width="960" height="540" fill="#F8FAFC"/>
+<text x="24.0" y="42.0" font-size="20" font-weight="600" fill="#1E293B" text-anchor="start" data-maxw="692.0">check() finds what an estimate of text width cannot</text>
+<text x="936.0" y="42.0" font-size="12" font-weight="400" fill="#64748B" text-anchor="end">Comparison</text>
+<rect x="24.0" y="70.0" width="912.0" height="268.0" rx="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1" filter="url(#sh)" data-part="box"/>
+<text x="40.0" y="90.0" font-size="12" font-weight="500" fill="#64748B" text-anchor="start">Problem</text>
+<text x="254.0" y="90.0" font-size="12" font-weight="500" fill="#64748B" text-anchor="start">What it means</text>
+<text x="624.0" y="90.0" font-size="12" font-weight="500" fill="#64748B" text-anchor="start">Typical fix</text>
+<line x1="24.0" y1="100.0" x2="936.0" y2="100.0" stroke="#E2E8F0" stroke-width="1"/>
+<text x="40.0" y="122.0" font-size="13" font-weight="400" fill="#1E293B" text-anchor="start" data-maxw="202.0">Overflow</text>
+<text x="254.0" y="122.0" font-size="12.5" font-weight="400" fill="#1E293B" text-anchor="start" data-maxw="358.0">Text is wider than the space given to it</text>
+<text x="624.0" y="122.0" font-size="12.5" font-weight="400" fill="#1E293B" text-anchor="start" data-maxw="300.0">Shorten it or let it wrap</text>
+<line x1="24.0" y1="134.0" x2="936.0" y2="134.0" stroke="#E2E8F0" stroke-width="1"/>
+<text x="40.0" y="156.0" font-size="13" font-weight="400" fill="#1E293B" text-anchor="start" data-maxw="202.0">Crosses a box edge</text>
+<text x="254.0" y="156.0" font-size="12.5" font-weight="400" fill="#1E293B" text-anchor="start" data-maxw="358.0">Text starts inside a card and ends outside</text>
+<text x="624.0" y="156.0" font-size="12.5" font-weight="400" fill="#1E293B" text-anchor="start" data-maxw="300.0">Move it or widen the card</text>
+<line x1="24.0" y1="168.0" x2="936.0" y2="168.0" stroke="#E2E8F0" stroke-width="1"/>
+<text x="40.0" y="190.0" font-size="13" font-weight="400" fill="#1E293B" text-anchor="start" data-maxw="202.0">Overlapping text</text>
+<text x="254.0" y="190.0" font-size="12.5" font-weight="400" fill="#1E293B" text-anchor="start" data-maxw="358.0">Two pieces of text share the same space</text>
+<text x="624.0" y="190.0" font-size="12.5" font-weight="400" fill="#1E293B" text-anchor="start" data-maxw="300.0">Add spacing between rows</text>
+<line x1="24.0" y1="202.0" x2="936.0" y2="202.0" stroke="#E2E8F0" stroke-width="1"/>
+<text x="40.0" y="224.0" font-size="13" font-weight="400" fill="#1E293B" text-anchor="start" data-maxw="202.0">Line or arrow on text</text>
+<text x="254.0" y="224.0" font-size="12.5" font-weight="400" fill="#1E293B" text-anchor="start" data-maxw="358.0">A line crosses or touches a label</text>
+<text x="624.0" y="224.0" font-size="12.5" font-weight="400" fill="#1E293B" text-anchor="start" data-maxw="300.0">Move the label beside the line</text>
+<line x1="24.0" y1="236.0" x2="936.0" y2="236.0" stroke="#E2E8F0" stroke-width="1"/>
+<text x="40.0" y="258.0" font-size="13" font-weight="400" fill="#1E293B" text-anchor="start" data-maxw="202.0">Arrow enters a box</text>
+<text x="254.0" y="258.0" font-size="12.5" font-weight="400" fill="#1E293B" text-anchor="start" data-maxw="358.0">An arrow runs into a card it does not point to</text>
+<text x="624.0" y="258.0" font-size="12.5" font-weight="400" fill="#1E293B" text-anchor="start" data-maxw="300.0">Route it around the card</text>
+<line x1="24.0" y1="270.0" x2="936.0" y2="270.0" stroke="#E2E8F0" stroke-width="1"/>
+<text x="40.0" y="292.0" font-size="13" font-weight="400" fill="#1E293B" text-anchor="start" data-maxw="202.0">Filled area over text</text>
+<text x="254.0" y="292.0" font-size="12.5" font-weight="400" fill="#1E293B" text-anchor="start" data-maxw="358.0">A shaded area in a schematic covers a label</text>
+<text x="624.0" y="292.0" font-size="12.5" font-weight="400" fill="#1E293B" text-anchor="start" data-maxw="300.0">Move the label off the area</text>
+<line x1="24.0" y1="304.0" x2="936.0" y2="304.0" stroke="#E2E8F0" stroke-width="1"/>
+<text x="40.0" y="326.0" font-size="13" font-weight="400" fill="#1E293B" text-anchor="start" data-maxw="202.0">Outside the canvas</text>
+<text x="254.0" y="326.0" font-size="12.5" font-weight="400" fill="#1E293B" text-anchor="start" data-maxw="358.0">Text is cut off at the edge of the slide</text>
+<text x="624.0" y="326.0" font-size="12.5" font-weight="400" fill="#1E293B" text-anchor="start" data-maxw="300.0">Move it inside the margins</text>
+<text x="24.0" y="400.0" font-size="15" font-weight="600" fill="#1E293B" text-anchor="start" data-maxw="912.0">What is still checked by eye</text>
+<rect x="24.0" y="418.0" width="356.2" height="64.0" rx="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1" filter="url(#sh)" data-part="box"/>
+<text x="44.0" y="445.0" font-size="14" font-weight="600" fill="#1E293B" text-anchor="start" data-maxw="316.2">check() reports nothing</text>
+<text x="44.0" y="466.0" font-size="12" font-weight="400" fill="#64748B" text-anchor="start" data-maxw="316.2">No overflow, overlap, or arrow problems</text>
+<rect x="444.2" y="418.0" width="491.8" height="64.0" rx="12" fill="#FFFFFF" stroke="#10B981" stroke-width="1" filter="url(#sh)" data-part="box"/>
+<text x="464.2" y="445.0" font-size="14" font-weight="600" fill="#10B981" text-anchor="start" data-maxw="451.8">Open the PNG and look at it</text>
+<text x="464.2" y="466.0" font-size="12" font-weight="400" fill="#64748B" text-anchor="start" data-maxw="451.8">Spacing, balance, and whether the message is clear</text>
+<path d="M388.2,450.0 L436.2,450.0 M430.4,454.0 L436.2,450.0 L430.4,446.0" stroke="#94A3B8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none" data-part="arrow"/>
+<text x="412.2" y="442.0" font-size="12" font-weight="400" fill="#64748B" text-anchor="middle">Yes</text>
+</svg>
