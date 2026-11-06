@@ -159,6 +159,17 @@ class DefaultsTest(unittest.TestCase):
             with self.subTest(name):
                 self.assertEqual(s.warnings, [])
 
+    def test_named_items_draw_the_same_as_tuples(self):
+        from svgparts import Actor, FlowStep, Message, TreeNode
+        a, b = Slide("t", "t"), Slide("t", "t")
+        a.flow(100, [("Receive", "Take the application"), ("Review", ["Check it"], C.PRIMARY)])
+        b.flow(100, [FlowStep("Receive", "Take the application"), FlowStep("Review", ["Check it"], C.PRIMARY)])
+        a.sequence(220, [("u", "You", None, None, "user"), ("c", "Claude")], [("u", "c", "Ask")])
+        b.sequence(220, [Actor("u", "You", icon="user"), Actor("c", "Claude")], [Message("u", "c", "Ask")])
+        a.tree(400, ("Root", None, [("A",), ("B", "sub")]))
+        b.tree(400, TreeNode("Root", children=[TreeNode("A"), TreeNode("B", "sub")]))
+        self.assertEqual(a.out, b.out)
+
     def test_sequence_rejects_message_to_itself(self):
         s = Slide("t", "t")
         with self.assertRaises(ValueError):

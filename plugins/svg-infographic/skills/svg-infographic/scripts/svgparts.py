@@ -17,8 +17,12 @@ CLI:
 Colors, sizes, and weights follow the rules in SKILL.md. To change how a part looks,
 change this file so that every figure stays consistent.
 """
+from __future__ import annotations
+
 __all__ = [
     "C", "FONT", "ICONS", "CHECK_KINDS", "Slide", "Sketch",
+    "Stat", "FlowStep", "ChainNode", "Event", "Step", "Actor", "Message", "Action",
+    "Lane", "LaneStep", "TreeNode", "Bar", "RoadmapRow",
     "check", "render", "catalog", "find_browser", "text_width", "wrap", "tint", "theme_colors",
 ]
 
@@ -30,6 +34,7 @@ import subprocess
 import sys
 import tempfile
 import unicodedata
+from typing import NamedTuple, Sequence
 from xml.sax.saxutils import escape
 
 FONT = "'Hiragino Sans', 'Yu Gothic UI', 'Noto Sans JP', 'Noto Sans CJK JP', system-ui, sans-serif"
@@ -85,6 +90,100 @@ class C:
     TEXT = "#1E293B"
     SUB = "#64748B"
     ARROW = "#94A3B8"
+
+
+# Items passed to the parts. Each is a NamedTuple, so a plain tuple in the same order works too, and fields with a
+# default can be left out: ("Receive", "Take the application") is the same as FlowStep("Receive", "...").
+class Stat(NamedTuple):
+    label: str
+    value: str
+    color: str = C.TEXT
+    icon: str | None = None
+
+
+class FlowStep(NamedTuple):
+    title: str
+    desc: str | Sequence[str] = ()
+    accent: str | None = None
+
+
+class ChainNode(NamedTuple):
+    icon: str
+    title: str
+    sub: str | Sequence[str] = ()
+    accent: str | None = None
+
+
+class Event(NamedTuple):
+    time: str
+    title: str
+    desc: str | Sequence[str] = ()
+    accent: str | None = None
+
+
+class Step(NamedTuple):
+    title: str
+    desc: str = ""
+
+
+class Actor(NamedTuple):
+    key: str
+    name: str
+    sub: str | None = None
+    accent: str | None = None
+    icon: str | None = None
+
+
+class Message(NamedTuple):
+    src: str
+    dst: str
+    label: str
+    accent: str | None = None
+
+
+class Action(NamedTuple):
+    title: str
+    desc: str
+    status: str
+    color: str = C.SUB
+
+
+class Lane(NamedTuple):
+    key: str
+    name: str
+
+
+class LaneStep(NamedTuple):
+    lane: str
+    col: int
+    title: str
+    accent: str | None = None
+    icon: str | None = None
+
+
+class TreeNode(NamedTuple):
+    title: str
+    sub: str | None = None
+    children: Sequence = ()
+    accent: str | None = None
+    icon: str | None = None
+
+
+class Bar(NamedTuple):
+    start: float
+    end: float
+    label: str
+    color: str = C.PRIMARY
+
+
+class RoadmapRow(NamedTuple):
+    name: str
+    bars: Sequence = ()
+
+
+def _as(cls, item):
+    """item as cls: a cls is returned as is, and a plain tuple is converted (missing fields take their defaults)."""
+    return item if isinstance(item, cls) else cls(*item)
 
 
 # Icons drawn with strokes on a 24x24 grid. "CUR" is replaced with the stroke color (for filled dots).
@@ -164,7 +263,7 @@ _ASCII_WIDTHS = [
 ]
 
 
-def text_width(s, size):
+def text_width(s: str, size: float):
     """Estimated rendered width in px. ASCII uses the measured table above, full-width characters count as 1x,
     and anything else as 0.7x. Fonts differ by platform, so render() also measures the real widths."""
     w = 0.0
@@ -197,7 +296,7 @@ def _is_hiragana(ch):
     return "\u3040" <= ch <= "\u309F"
 
 
-def wrap(s, max_width, size=13):
+def wrap(s: str, max_width, size: float = 13):
     """Split s into lines that fit max_width (estimated with text_width). English breaks at spaces.
     Japanese breaks between characters, preferring a break after punctuation or after a particle that is
     followed by kanji, katakana, or ASCII (usually the end of a phrase), and never puts 、。」 etc. at the start
@@ -254,7 +353,7 @@ def _mix(hex_color, other, t):
     return "#" + "".join(f"{round(x + (y - x) * t):02X}" for x, y in zip(a, b))
 
 
-def theme_colors(theme):
+def theme_colors(theme: dict | None):
     """Expand a theme such as {"PRIMARY": "#7C3AED"} to every C role it affects. A missing light background
     (PRIMARY_BG, ORANGE_BG, GREEN_BG) or ORANGE_LINE is derived from its main color."""
     out = {}
@@ -272,13 +371,14 @@ def theme_colors(theme):
     return out
 
 
-def tint(accent, default=C.CARD):
+def tint(accent: str, default: str = C.CARD):
     """Light background for an accent color (blue, green, or orange). Other colors get default."""
     return {C.PRIMARY: C.PRIMARY_BG, C.GREEN: C.GREEN_BG, C.ORANGE: C.ORANGE_BG}.get(accent, default)
 
 
 class Slide:
-    def __init__(self, title, description, width=960, height=540, margin=24, pad=20, theme=None):
+    def __init__(self, title: str, description: str, width: float = 960, height: float = 540, margin: float = 24,
+            pad: float = 20, theme: dict | None = None):
         """theme maps C role names to colors, for example {"PRIMARY": "#7C3AED", "GREEN": "#0F766E"}.
         The colors are swapped when the SVG is saved, so every part follows the theme."""
         self.W, self.H, self.M, self.PAD = width, height, margin, pad
@@ -294,10 +394,11 @@ class Slide:
         a(f'<rect width="{width}" height="{height}" fill="{C.BG}"/>')
 
     # ---- basic elements ----
-    def raw(self, svg):
+    def raw(self, svg: str):
         self.out.append(svg)
 
-    def text(self, x, y, s, size=13, color=C.TEXT, weight=400, anchor="start", max_width=None, on_line=False):
+    def text(self, x: float, y: float, s: str, size: float = 13, color: str = C.TEXT, weight: int = 400,
+            anchor: str = "start", max_width=None, on_line: bool = False):
         """With max_width, warns when the estimated width exceeds it, and render() checks the measured width.
         on_line=True marks text that is meant to sit on a line (it has its own background), so the check skips it."""
         extra = ""
@@ -311,7 +412,8 @@ class Slide:
         self.out.append(f'<text x="{x:.1f}" y="{y:.1f}" font-size="{size}" font-weight="{weight}" '
                         f'fill="{color}" text-anchor="{anchor}"{extra}>{escape(s)}</text>')
 
-    def paragraph(self, x, y, w, s, size=13, color=C.TEXT, weight=400, line_h=None, max_lines=None):
+    def paragraph(self, x: float, y: float, w: float, s: str, size: float = 13, color: str = C.TEXT, weight: int = 400,
+            line_h: float | None = None, max_lines: int | None = None):
         """Text wrapped to width w with wrap(). y is the first baseline. Returns the baseline of the last line.
         Warns when the text needs more than max_lines lines."""
         line_h = line_h or round(size * 1.5)
@@ -331,24 +433,25 @@ class Slide:
             return lines
         return list(desc)
 
-    def card(self, x, y, w, h, border=C.LINE, fill=C.CARD):
+    def card(self, x: float, y: float, w: float, h: float, border: str = C.LINE, fill: str = C.CARD):
         """Card with 12px corners and a shadow. The border keeps it distinct where shadows are not rendered."""
         self.out.append(f'<rect x="{x:.1f}" y="{y:.1f}" width="{w:.1f}" height="{h:.1f}" rx="12" fill="{fill}" '
                         f'stroke="{border}" stroke-width="1" filter="url(#sh)" data-part="box"/>')
 
-    def line(self, x1, y1, x2, y2, color=C.LINE, width=1):
+    def line(self, x1: float, y1: float, x2: float, y2: float, color: str = C.LINE, width: float = 1):
         self.out.append(f'<line x1="{x1:.1f}" y1="{y1:.1f}" x2="{x2:.1f}" y2="{y2:.1f}" stroke="{color}" stroke-width="{width}"/>')
 
-    def arrow(self, x1, x2, y):
+    def arrow(self, x1: float, x2: float, y: float):
         """Right-pointing arrow. Drawn as one path for line and head, without <marker>."""
         self.out.append(f'<path d="M{x1:.1f},{y:.1f} H{x2:.1f} M{x2-6:.1f},{y-6:.1f} L{x2:.1f},{y:.1f} L{x2-6:.1f},{y+6:.1f}" '
                         f'stroke="{C.ARROW}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none" data-part="arrow"/>')
 
-    def arrow_down(self, x, y1, y2):
+    def arrow_down(self, x: float, y1: float, y2: float):
         self.out.append(f'<path d="M{x:.1f},{y1:.1f} V{y2:.1f} M{x-6:.1f},{y2-6:.1f} L{x:.1f},{y2:.1f} L{x+6:.1f},{y2-6:.1f}" '
                         f'stroke="{C.ARROW}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none" data-part="arrow"/>')
 
-    def pill(self, x, y, label, fill=C.PRIMARY, color="#FFFFFF", border=None, h=22, size=12, w=None):
+    def pill(self, x: float, y: float, label: str, fill: str = C.PRIMARY, color: str = "#FFFFFF",
+            border: str | None = None, h: float = 22, size: float = 12, w: float | None = None):
         """Number or category badge. Without w, the width follows the text. Returns the badge width."""
         if w is None:
             w = round(text_width(label, size) + 24)
@@ -357,21 +460,21 @@ class Slide:
         self.text(x + w / 2, y + h / 2 + size * 0.36, label, size, color, 600, "middle")
         return w
 
-    def dot(self, x, y, color, r=3.5):
+    def dot(self, x: float, y: float, color: str, r: float = 3.5):
         self.out.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{r}" fill="{color}"/>')
 
-    def numbered(self, cx, cy, n, r=12, fill=C.PRIMARY):
+    def numbered(self, cx: float, cy: float, n: int, r: float = 12, fill: str = C.PRIMARY):
         self.out.append(f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="{r}" fill="{fill}"/>')
         self.text(cx, cy + 5, str(n), 13, "#FFFFFF", 600, "middle")
 
-    def icon(self, name, x, y, size=22, color=C.SUB):
+    def icon(self, name: str, x: float, y: float, size: float = 22, color: str = C.SUB):
         """Icon (a key of ICONS). (x, y) is the top left. The stroke looks 1.75px at any size."""
         k = size / 24
         body = "".join(ICONS[name]).replace("CUR", color)
         self.out.append(f'<g transform="translate({x:.1f},{y:.1f}) scale({k:.4f})" fill="none" stroke="{color}" '
                         f'stroke-width="{1.75 / k:.2f}" stroke-linecap="round" stroke-linejoin="round">{body}</g>')
 
-    def connector(self, x1, y1, x2, y2, color=C.ARROW, label=None):
+    def connector(self, x1: float, y1: float, x2: float, y2: float, color: str = C.ARROW, label: str | None = None):
         """Arrow in any direction (head at the end point). label is written small above the midpoint."""
         import math
         if math.hypot(x2 - x1, y2 - y1) < 28:
@@ -387,13 +490,14 @@ class Slide:
         if label:
             self.text((x1 + x2) / 2, (y1 + y2) / 2 - 8, label, 12, C.SUB, 400, "middle")
 
-    def titled(self, x, y, icon, title, size=15, color=C.TEXT, icon_color=C.SUB, max_width=None):
+    def titled(self, x: float, y: float, icon: str, title: str, size: float = 15, color: str = C.TEXT,
+            icon_color: str = C.SUB, max_width=None):
         """Heading with an icon. y is the text baseline."""
         self.icon(icon, x, y - size + 1 - (22 - size) / 2, 22, icon_color)
         self.text(x + 30, y, title, size, color, 600, max_width=None if max_width is None else max_width - 30)
 
     # ---- layout ----
-    def columns(self, n, gap=12, left=None, right=None):
+    def columns(self, n: int, gap: float = 12, left: float | None = None, right: float | None = None):
         """Split the area inside the side margins into n columns. Returns (width, x of each column)."""
         left = self.M if left is None else left
         right = self.W - self.M if right is None else right
@@ -401,17 +505,18 @@ class Slide:
         return w, [left + i * (w + gap) for i in range(n)]
 
     # ---- composite parts ----
-    def header(self, title, meta=None, y=42):
+    def header(self, title: str, meta: str | None = None, y: float = 42):
         """Slide heading (20px, 600) and note at top right (12px). The heading states the conclusion."""
         self.text(self.M, y, title, 20, C.TEXT, 600, max_width=self.W - 2 * self.M - (220 if meta else 0))
         if meta:
             self.text(self.W - self.M, y, meta, 12, C.SUB, 400, "end")
 
-    def section(self, y, title):
+    def section(self, y: float, title: str):
         """Row heading (15px, 600)."""
         self.text(self.M, y, title, 15, C.TEXT, 600, max_width=self.W - 2 * self.M)
 
-    def stat(self, x, y, w, label, value, color=C.TEXT, h=58, icon=None):
+    def stat(self, x: float, y: float, w: float, label: str, value: str, color: str = C.TEXT, h: float = 58,
+            icon: str | None = None):
         """Label and value pair. Value is 16px, 500. With icon, an icon is placed on the right."""
         self.card(x, y, w, h)
         room = w - 2 * self.PAD - (30 if icon else 0)
@@ -420,15 +525,14 @@ class Slide:
         if icon:
             self.icon(icon, x + w - self.PAD - 22, y + (h - 22) / 2, 22, color if color != C.TEXT else C.SUB)
 
-    def stats(self, y, items, gap=12):
+    def stats(self, y: float, items: Sequence, gap: float = 12):
         """stat cards in one row. items = [(label, value, color) or (label, value, color, icon), ...]"""
         w, xs = self.columns(len(items), gap)
-        for x, item in zip(xs, items):
-            label, value, color = item[:3]
-            self.stat(x, y, w, label, value, color, icon=item[3] if len(item) > 3 else None)
+        for x, item in zip(xs, (_as(Stat, i) for i in items)):
+            self.stat(x, y, w, item.label, item.value, item.color, icon=item.icon)
 
-    def ratio(self, x, y, w, label, value, value_color, part_label, fraction,
-              fill=C.GREEN, track=C.ORANGE_BG, h=58):
+    def ratio(self, x: float, y: float, w: float, label: str, value: str, value_color: str, part_label: str,
+            fraction: float, fill: str = C.GREEN, track: str = C.ORANGE_BG, h: float = 58):
         """Card showing a total and the share of a part as one bar.
         Total on the left; the part's label and the bar on the right. The bar fill is fraction (0-1)."""
         self.card(x, y, w, h)
@@ -441,7 +545,8 @@ class Slide:
         self.raw(f'<rect x="{left:.1f}" y="{y + 33:.1f}" width="{bw:.1f}" height="10" rx="5" fill="{track}"/>')
         self.raw(f'<rect x="{left:.1f}" y="{y + 33:.1f}" width="{bw * fraction:.1f}" height="10" rx="5" fill="{fill}"/>')
 
-    def node(self, x, y, w, h, icon, title, sub=(), accent=None):
+    def node(self, x: float, y: float, w: float, h: float, icon: str, title: str, sub: str = (),
+            accent: str | None = None):
         """Diagram element (person, system, data, etc.). Icon on top, then name and description, centered."""
         color = accent or C.TEXT
         self.card(x, y, w, h, accent or C.LINE, tint(accent))
@@ -450,26 +555,27 @@ class Slide:
         for j, s_ in enumerate(self._desc(sub, w - 16)):
             self.text(x + w / 2, y + 78 + j * 17, s_, 12, C.SUB, 400, "middle", max_width=w - 16)
 
-    def zone(self, x, y, w, h, label):
+    def zone(self, x: float, y: float, w: float, h: float, label: str):
         """Frame marking an owner or environment (light fill, dashed). label goes at top left. Put nodes inside."""
         self.raw(f'<rect x="{x:.1f}" y="{y:.1f}" width="{w:.1f}" height="{h:.1f}" rx="14" fill="#F1F5F9" '
                  f'stroke="#CBD5E1" stroke-width="1" stroke-dasharray="4 4" data-part="zone"/>')
         self.text(x + 14, y + 19, label, 12, C.SUB, 600, max_width=w - 28)
 
-    def span(self, x1, x2, y, label, color=C.SUB):
+    def span(self, x1: float, x2: float, y: float, label: str, color: str = C.SUB):
         """Bracket over x1-x2 with a label above, for ranges such as "before the email is sent"."""
         self.raw(f'<path d="M{x1:.1f},{y + 6:.1f} V{y:.1f} H{x2:.1f} V{y + 6:.1f}" stroke="{color}" stroke-width="1.5" '
                  f'fill="none" stroke-linecap="round" stroke-linejoin="round"/>')
         self.text((x1 + x2) / 2, y - 7, label, 12, color, 500, "middle", max_width=x2 - x1)
 
-    def timeline(self, y, items, gap=16, left=None, right=None):
+    def timeline(self, y: float, items: Sequence, gap: float = 16, left: float | None = None,
+            right: float | None = None):
         """Events in time order at equal spacing (spacing is not proportional to time).
         items = [(time, heading, [description...], accent or None), ...]. y is the axis position."""
         w, xs = self.columns(len(items), gap, left, right)
         x0 = xs[0]
         x1 = xs[-1] + w
         self.line(x0, y, x1, y, C.LINE, 2)
-        for x, (t, title, desc, accent) in zip(xs, items):
+        for x, (t, title, desc, accent) in zip(xs, (_as(Event, i) for i in items)):
             color = accent or C.TEXT
             self.dot(x + 6, y, accent or C.PRIMARY, 5)
             self.text(x, y - 14, t, 14, color, 600, max_width=w)
@@ -479,8 +585,8 @@ class Slide:
         return w, xs
 
     # ---- decision diagrams ----
-    def box(self, x, y, w, h, title, sub=None, fill=C.CARD, border=C.LINE, color=C.TEXT, rx=10, size=13,
-            icon=None):
+    def box(self, x: float, y: float, w: float, h: float, title: str, sub: str | None = None, fill: str = C.CARD,
+            border: str = C.LINE, color: str = C.TEXT, rx=10, size: float = 13, icon: str | None = None):
         """Process step in a decision diagram (rectangle without shadow). Text is centered.
         Without sub, a title wider than the box is wrapped to two lines.
         With icon, the icon sits left of the text and the pair is centered together.
@@ -511,17 +617,17 @@ class Slide:
             else:
                 self.text(x + w / 2, y + h / 2 + size * 0.36, title, size, color, 600, "middle", max_width=w - 16)
 
-    def decision(self, x, y, w, h, label):
+    def decision(self, x: float, y: float, w: float, h: float, label: str):
         """Decision in a decision diagram ("Has a plan?", etc.). Light blue and rounded, unlike process boxes."""
         self.box(x, y, w, h, label, fill=C.PRIMARY_BG, border=C.PRIMARY, color=C.PRIMARY, rx=h / 2)
 
-    def terminal(self, x, y, w, h, label, color=C.SUB, sub=None):
+    def terminal(self, x: float, y: float, w: float, h: float, label: str, color: str = C.SUB, sub: str | None = None):
         """End of a decision diagram (ACK, NACK, done, etc.). color shows what the outcome means."""
         bg = tint(color, "#F1F5F9")
         self.box(x, y, w, h, label, sub=sub, fill=bg, border=color, color=color if color != C.SUB else C.TEXT,
                  rx=min(h / 2, 14))
 
-    def elbow(self, pts, color=C.ARROW, width=2):
+    def elbow(self, pts: Sequence[tuple[float, float]], color: str = C.ARROW, width: float = 2):
         """Polyline arrow (head at the end). pts = [(x, y), ...]. Right-angle bends read best.
         Warns when the last segment is under 28px, which squashes the head. Put labels beside the line, not on it."""
         import math
@@ -537,14 +643,15 @@ class Slide:
         self.raw(f'<path d="{d}" stroke="{color}" stroke-width="{width}" fill="none" '
                  f'stroke-linecap="round" stroke-linejoin="round" data-part="arrow"/>')
 
-    def edge_label(self, x, y, label, color=C.SUB, bg=C.BG):
+    def edge_label(self, x: float, y: float, label: str, color: str = C.SUB, bg: str = C.BG):
         """Label for an arrow ("Yes", "No", etc.) with a background fill so it does not sit on the line. y is the center."""
         w = text_width(label, 12) + 10
         self.raw(f'<rect x="{x - w / 2:.1f}" y="{y - 9:.1f}" width="{w:.1f}" height="18" rx="4" fill="{bg}"/>')
         self.text(x, y + 4.3, label, 12, color, 500, "middle", on_line=True)
 
     # ---- schematics, axes, ranges ----
-    def sketch(self, x, y, w, h, xlabels=(), ylabel=None, note="Schematic (not actual values)"):
+    def sketch(self, x: float, y: float, w: float, h: float, xlabels: Sequence[str] = (), ylabel: str | None = None,
+            note: str = "Schematic (not actual values)"):
         """Frame for a schematic that explains a shape. Draw lines and areas on the returned Sketch in 0-1 coordinates.
         It is not a chart of real data, so note is always shown."""
         self.line(x, y, x, y + h, C.ARROW, 1.2)
@@ -562,11 +669,12 @@ class Slide:
             self.text(x + fx * w, y + h + 18, lb, 12, C.SUB, 400, anchor)
         return Sketch(self, x, y, w, h)
 
-    def scale(self, x, w, v0, v1):
+    def scale(self, x: float, w: float, v0: float, v1: float):
         """Return a function mapping v0-v1 to x-(x+w) (for time-proportional axes, etc.)."""
         return lambda v: x + (v - v0) / (v1 - v0) * w
 
-    def band(self, x1, x2, y, h, color, label=None, label_color=None):
+    def band(self, x1: float, x2: float, y: float, h: float, color: str, label: str | None = None,
+            label_color: str | None = None):
         """Band showing a time window or range. color is the band color. label goes to the right of the band."""
         bg = tint(color, "#F1F5F9")
         self.raw(f'<rect x="{x1:.1f}" y="{y:.1f}" width="{max(x2 - x1, 4):.1f}" height="{h}" rx="{min(h / 2, 5)}" '
@@ -574,7 +682,8 @@ class Slide:
         if label:
             self.text(x2 + 8, y + h / 2 + 4.3, label, 12, label_color or C.SUB, 500)
 
-    def range_bar(self, x, y, w, label, lo, hi, vmax, value, color=C.PRIMARY, label_w=150, value_w=96):
+    def range_bar(self, x: float, y: float, w: float, label: str, lo: float, hi: float, vmax: float, value: str,
+            color: str = C.PRIMARY, label_w: float = 150, value_w: float = 96):
         """Horizontal bar from minimum to maximum. y is the row center. Use a charting library for precise comparisons."""
         self.text(x, y + 4.5, label, 12.5, C.TEXT, 400, max_width=label_w - 8)
         tx, tw = x + label_w, w - label_w - value_w
@@ -583,21 +692,21 @@ class Slide:
         self.raw(f'<rect x="{x1:.1f}" y="{y - 4:.1f}" width="{max(x2 - x1, 6):.1f}" height="8" rx="4" fill="{color}"/>')
         self.text(x + w, y + 4.5, value, 12.5, color if color != C.PRIMARY else C.TEXT, 500, "end")
 
-    def chain(self, y, items, h=104, gap=44):
+    def chain(self, y: float, items: Sequence, h: float = 104, gap: float = 44):
         """Nodes in one row joined by arrows. items = [(icon, name, [description...], accent or None), ...]"""
         w, xs = self.columns(len(items), gap)
-        for i, (x, (icon, title, sub, accent)) in enumerate(zip(xs, items)):
+        for i, (x, (icon, title, sub, accent)) in enumerate(zip(xs, (_as(ChainNode, i) for i in items))):
             self.node(x, y, w, h, icon, title, sub, accent)
             if i < len(items) - 1:
                 self.connector(x + w + 6, y + h / 2, x + w + gap - 6, y + h / 2)
         return w, xs
 
-    def flow(self, y, items, h=84, gap=28, pad=16):
+    def flow(self, y: float, items: Sequence, h: float = 84, gap: float = 28, pad: float = 16):
         """Boxes in a row joined by arrows.
         items = [(heading, [description line 1, line 2], accent or None), ...]
         A box with an accent gets its border and heading in that color."""
         w, xs = self.columns(len(items), gap)
-        for i, (x, (title, desc, accent)) in enumerate(zip(xs, items)):
+        for i, (x, (title, desc, accent)) in enumerate(zip(xs, (_as(FlowStep, i) for i in items))):
             self.card(x, y, w, h, accent or C.LINE, tint(accent))
             self.text(x + pad, y + 28, title, 14, accent or C.TEXT, 600, max_width=w - 2 * pad)
             for j, d in enumerate(self._desc(desc, w - 2 * pad)):
@@ -606,19 +715,21 @@ class Slide:
                 self.arrow(x + w + gap / 2 - 7, x + w + gap / 2 + 7, y + h / 2)
         return w, xs
 
-    def bullets(self, x, y, w, items, size=13, step=24):
+    def bullets(self, x: float, y: float, w: float, items: Sequence, size: float = 13, step: float = 24):
         """Bullet list. y is the baseline of the first line."""
         for j, item in enumerate(items):
             yy = y + j * step
             self.dot(x + 3, yy - size * 0.35, C.ARROW, 2.5)
             self.text(x + 12, yy, item, size, C.TEXT, max_width=w - 12)
 
-    def status(self, x, y, label, color):
+    def status(self, x: float, y: float, label: str, color: str):
         """Dot and status label (green for done, gray for not started, orange for in progress)."""
         self.dot(x + 4, y - 4, color)
         self.text(x + 14, y, label, 12, color, 500)
 
-    def table(self, x, y, w, headers, col_x, rows, highlight=(), head_h=30, row_h=31, row_icons=None):
+    def table(self, x: float, y: float, w: float, headers: Sequence[str], col_x: Sequence[float], rows: Sequence,
+            highlight: Sequence[int] | dict = (), head_h: float = 30, row_h: float = 31,
+            row_icons: Sequence | None = None):
         """Table. col_x is the left edge of each column (offset from the table's left edge).
         A cell is a string or (string, color, weight). highlight lists rows with a light blue background, or maps
         row numbers to an accent color ({0: C.ORANGE}) to give each row that color's light background.
@@ -650,9 +761,9 @@ class Slide:
                 self.text(x + col_x[k] + dx, ry + row_h / 2 + 5, s, 12.5 if k else 13, color, weight,
                           max_width=bounds[k + 1] - col_x[k] - dx - 12)
 
-    def steps(self, x, y, items, step=50):
+    def steps(self, x: float, y: float, items: Sequence, step: float = 50):
         """Numbered steps stacked vertically. items = [(heading, description), ...]. y is the center of the first circle."""
-        for i, (title, desc) in enumerate(items):
+        for i, (title, desc) in enumerate(_as(Step, i) for i in items):
             cy = y + i * step
             self.numbered(x + 12, cy, i + 1)
             self.text(x + 34, cy - 1, title, 14, C.TEXT, 600)
@@ -661,19 +772,21 @@ class Slide:
                 self.line(x + 12, cy + 16, x + 12, cy + step - 16, C.LINE, 2)
 
     # ---- sequences, rules, action lists ----
-    def sequence(self, y, actors, messages, step=30, head_h=44, left=None, right=None, numbered=True):
+    def sequence(self, y: float, actors: Sequence, messages: Sequence, step: float = 30, head_h: float = 44,
+            left: float | None = None, right: float | None = None, numbered: bool = True):
         """Sequence diagram. actors = [(key, name, sub or None, accent or None[, icon]), ...] are placed in equal columns
         with a dashed lifeline below each. messages = [(from_key, to_key, label, accent or None), ...] are drawn
         top to bottom, one row per step, with the label centered above the arrow on a background fill.
         With numbered=True, labels are prefixed "1. ", "2. ", and so on.
         Returns (x of each actor by key, y below the last message)."""
+        actors = [_as(Actor, a) for a in actors]
+        messages = [_as(Message, m) for m in messages]
         n = len(actors)
         w, xs = self.columns(n, 12, left, right)
         cx = {a[0]: x + w / 2 for x, a in zip(xs, actors)}
         bottom = y + head_h + 24 + step * len(messages)
-        for x, (key, name, sub, accent, *icon) in zip(xs, actors):
-            self.box(x, y, w, head_h, name, sub=sub, color=accent or C.TEXT, border=accent or C.LINE,
-                     icon=icon[0] if icon else None)
+        for x, (key, name, sub, accent, icon) in zip(xs, actors):
+            self.box(x, y, w, head_h, name, sub=sub, color=accent or C.TEXT, border=accent or C.LINE, icon=icon)
             self.raw(f'<path d="M{cx[key]:.1f},{y + head_h:.1f} V{bottom:.1f}" stroke="{C.LINE}" '
                      f'stroke-width="1.5" stroke-dasharray="4 4"/>')
         for i, (a, b, label, accent) in enumerate(messages):
@@ -693,8 +806,9 @@ class Slide:
                       max_width=self.W - 2 * self.M, on_line=True)
         return cx, bottom
 
-    def rule_row(self, x, y, w, cond, result, cond_sub=None, result_sub=None, color=C.PRIMARY, label="Yes",
-                 split=0.42, h=64, cond_icon=None, result_icon=None):
+    def rule_row(self, x: float, y: float, w: float, cond: str, result: str, cond_sub: str | None = None,
+            result_sub: str | None = None, color: str = C.PRIMARY, label: str = "Yes", split: float = 0.42,
+            h: float = 64, cond_icon: str | None = None, result_icon: str | None = None):
         """One "if this, then that" row: a card with the condition, an arrow with a label, and a card with the
         result in the accent color. split is the share of w given to the condition card. cond_icon and result_icon
         put an icon before each title. Returns y below the row."""
@@ -715,10 +829,12 @@ class Slide:
         self.connector(x + cw + 8, y + h / 2, x + cw + gap - 8, y + h / 2, label=label)
         return y + h
 
-    def action_list(self, y, items, x=None, w=None, h=46, gap=6, title_w=None):
+    def action_list(self, y: float, items: Sequence, x: float | None = None, w: float | None = None, h: float = 46,
+            gap: float = 6, title_w: float | None = None):
         """Rows of follow-up actions: title, description, and status.
         items = [(title, description, status, status_color), ...]. title_w is the width of the title column
         (by default the widest title plus 40px). Returns y below the last row."""
+        items = [_as(Action, i) for i in items]
         x = self.M if x is None else x
         w = self.W - 2 * self.M if w is None else w
         if title_w is None:
@@ -734,12 +850,16 @@ class Slide:
         return y + len(items) * (h + gap) - gap
 
     # ---- swimlanes, before/after, trees, roadmaps ----
-    def swimlane(self, y, lanes, steps, edges=None, cols=None, lane_h=88, label_w=None, gap=72, box_h=48):
+    def swimlane(self, y: float, lanes: Sequence, steps: Sequence, edges: Sequence | None = None,
+            cols: int | None = None, lane_h: float = 88, label_w: float | None = None, gap: float = 72,
+            box_h: float = 48):
         """Swimlane diagram. lanes = [(key, name), ...] are horizontal bands, one per owner.
         steps = [(lane_key, col, title, accent or None), ...] place a box in a lane at column col (0-based).
         edges = [(i, j, label or None), ...] join steps by index; by default each step joins the next.
         label_w defaults to the widest lane name plus 40px. Returns y below the last lane."""
-        cols = cols or max(c for _, c, _, _ in steps) + 1
+        lanes = [_as(Lane, ln) for ln in lanes]
+        steps = [_as(LaneStep, st) for st in steps]
+        cols = cols or max(st.col for st in steps) + 1
         if label_w is None:
             label_w = max(text_width(name, 13) for _, name in lanes) + 40
         x0 = self.M + label_w
@@ -754,10 +874,10 @@ class Slide:
             self.text(self.M + 14, ly + lane_h / 2 + 5, name, 13, C.TEXT, 600, max_width=label_w - 24)
         self.line(x0, y, x0, y + len(lanes) * lane_h, C.LINE, 1)
         boxes = []
-        for lane, col, title, accent in steps:
+        for lane, col, title, accent, icon in steps:
             bx = x0 + col * col_w + gap / 2
             by = y + row[lane] * lane_h + (lane_h - box_h) / 2
-            self.box(bx, by, bw, box_h, title, color=accent or C.TEXT, border=accent or C.LINE)
+            self.box(bx, by, bw, box_h, title, color=accent or C.TEXT, border=accent or C.LINE, icon=icon)
             boxes.append((bx, by))
         if edges is None:
             edges = [(i, i + 1, None) for i in range(len(steps) - 1)]
@@ -787,7 +907,8 @@ class Slide:
                     self.edge_label(mx, (ay + by + box_h) / 2, label)
         return y + len(lanes) * lane_h
 
-    def before_after(self, y, before, after, titles=("Before", "After"), h=None, gap=64, step=26, icons=None):
+    def before_after(self, y: float, before: Sequence, after: Sequence, titles: Sequence[str] = ("Before", "After"),
+            h: float | None = None, gap: float = 64, step: float = 26, icons: Sequence | None = None):
         """Two cards side by side with an arrow between them. before and after are lists of lines; a line given as
         (text, True) is a changed line and is colored (orange before, green after). icons = (before icon, after
         icon) puts an icon before each title, in the card's accent color. Returns y below the cards."""
@@ -810,7 +931,8 @@ class Slide:
         self.connector(self.M + w + 14, y + h / 2, self.M + w + gap - 14, y + h / 2)
         return y + h
 
-    def tree(self, y, root, box_w=None, box_h=52, level_gap=40, gap=16, left=None, right=None):
+    def tree(self, y: float, root: TreeNode | tuple, box_w: float | None = None, box_h: float = 52,
+            level_gap: float = 40, gap: float = 16, left: float | None = None, right: float | None = None):
         """Hierarchy such as an org chart. root = (title, sub or None, [children...], accent or None[, icon]),
         where each child has the same shape. Leaves are spread evenly; a parent is centered over its children.
         Returns y below the deepest level."""
@@ -818,10 +940,11 @@ class Slide:
         right = self.W - self.M if right is None else right
 
         def leaves(nd):
-            return 1 if not nd[2] else sum(leaves(c) for c in nd[2])
+            kids = _as(TreeNode, nd).children
+            return 1 if not kids else sum(leaves(c) for c in kids)
 
         def depth(nd):
-            return 1 + max((depth(c) for c in nd[2]), default=0)
+            return 1 + max((depth(c) for c in _as(TreeNode, nd).children), default=0)
 
         n = leaves(root)
         slot = (right - left) / n
@@ -833,9 +956,9 @@ class Slide:
             k = leaves(nd)
             cx = left + (first + k / 2) * slot
             by = y + lvl * (box_h + level_gap)
-            title, sub, kids, accent, *icon = nd
+            title, sub, kids, accent, icon = _as(TreeNode, nd)
             self.box(cx - bw / 2, by, bw, box_h, title, sub=sub, color=accent or C.TEXT, border=accent or C.LINE,
-                     icon=icon[0] if icon else None)
+                     icon=icon)
             if kids:
                 mid = by + box_h + level_gap / 2
                 xs, f = [], first
@@ -850,7 +973,8 @@ class Slide:
         place(root, 0, 0)
         return y + depth(root) * (box_h + level_gap) - level_gap
 
-    def roadmap(self, y, periods, rows, label_w=150, row_h=40, bar_h=24):
+    def roadmap(self, y: float, periods: Sequence[str], rows: Sequence, label_w: float = 150, row_h: float = 40,
+            bar_h: float = 24):
         """Roadmap. periods = ["Q1", "Q2", ...] are equal columns. rows = [(name, [(start, end, label, color), ...]),
         ...] where start and end are in period units (0 is the start of the first period, 1.5 is the middle of the
         second). The label goes inside the bar when it fits, otherwise to its right. Returns y below the last row."""
@@ -861,11 +985,11 @@ class Slide:
             self.text((f(i) + f(i + 1)) / 2, y + 14, p, 12, C.SUB, 500, "middle", max_width=f(1) - f(0) - 8)
             self.line(f(i), top, f(i), top + len(rows) * row_h, C.LINE, 1)
         self.line(f(len(periods)), top, f(len(periods)), top + len(rows) * row_h, C.LINE, 1)
-        for r, (name, bars) in enumerate(rows):
+        for r, (name, bars) in enumerate(_as(RoadmapRow, row) for row in rows):
             ry = top + r * row_h
             self.line(self.M, ry, x1, ry, C.LINE, 1)
             self.text(self.M, ry + row_h / 2 + 5, name, 13, C.TEXT, 600, max_width=label_w - 12)
-            for start, end, label, color in bars:
+            for start, end, label, color in (_as(Bar, b) for b in bars):
                 bx1, bx2 = f(start) + 3, f(end) - 3
                 bg = tint(color, "#F1F5F9")
                 by = ry + (row_h - bar_h) / 2
@@ -880,7 +1004,7 @@ class Slide:
         return top + len(rows) * row_h
 
     # ---- output ----
-    def save(self, path, quiet=False):
+    def save(self, path: str, quiet: bool = False):
         """Write the SVG and print the estimate-based warnings (unless quiet)."""
         svg = "\n".join(self.out + ["</svg>"]) + "\n"
         if self.theme:
@@ -893,7 +1017,7 @@ class Slide:
                 print("WARN", w, file=sys.stderr)
         return path
 
-    def render(self, png_path, svg_path=None, scale=2, check_layout=True):
+    def render(self, png_path: str, svg_path: str | None = None, scale: float = 2, check_layout: bool = True):
         """Save the SVG (next to the PNG unless svg_path is given), render the PNG, and run check().
         Problems found by check() are printed and kept in self.issues."""
         svg_path = svg_path or os.path.splitext(png_path)[0] + ".svg"
@@ -912,28 +1036,29 @@ class Slide:
 class Sketch:
     """Schematic returned by Slide.sketch(). (0, 0) is bottom left, (1, 1) is top right."""
 
-    def __init__(self, slide, x, y, w, h):
+    def __init__(self, slide, x: float, y: float, w: float, h: float):
         self.s, self.x, self.y, self.w, self.h = slide, x, y, w, h
 
-    def p(self, fx, fy):
+    def p(self, fx: float, fy: float):
         return self.x + fx * self.w, self.y + (1 - fy) * self.h
 
-    def line(self, pts, color=C.PRIMARY, width=2.5, dash=False):
+    def line(self, pts: Sequence[tuple[float, float]], color: str = C.PRIMARY, width: float = 2.5, dash: bool = False):
         d = "M" + " L".join("{:.1f},{:.1f}".format(*self.p(fx, fy)) for fx, fy in pts)
         da = ' stroke-dasharray="6 5"' if dash else ""
         self.s.raw(f'<path d="{d}" stroke="{color}" stroke-width="{width}" fill="none" '
                    f'stroke-linecap="round" stroke-linejoin="round"{da} data-part="line"/>')
 
-    def area(self, pts, color, opacity=0.18):
+    def area(self, pts: Sequence[tuple[float, float]], color: str, opacity=0.18):
         d = "M" + " L".join("{:.1f},{:.1f}".format(*self.p(fx, fy)) for fx, fy in pts) + " Z"
         self.s.raw(f'<path d="{d}" fill="{color}" fill-opacity="{opacity}" stroke="none" data-part="area"/>')
 
-    def label(self, fx, fy, text, color=C.SUB, anchor="start", size=12, weight=500):
+    def label(self, fx: float, fy: float, text: str, color: str = C.SUB, anchor: str = "start", size: float = 12,
+            weight: int = 500):
         px, py = self.p(fx, fy)
         self.s.text(px, py, text, size, color, weight, anchor)
 
 
-def render(svg_path, png_path, scale=2):
+def render(svg_path: str, png_path: str, scale: float = 2):
     """Render to PNG with a headless Chrome-family browser. The size is read from the SVG width/height."""
     with open(svg_path, encoding="utf-8") as f:
         head = f.read(2000)
@@ -1025,7 +1150,7 @@ document.fonts.ready.then(() => {
 """
 
 
-def check(svg_path):
+def check(svg_path: str):
     """Open the SVG in a headless Chrome-family browser and return layout problems found with the real fonts:
     text wider than its max_width, text outside the canvas or across the edge of a card or box, overlapping text,
     lines or arrows that cross or touch text, arrows that enter a box, and filled areas over text.
@@ -1047,7 +1172,7 @@ def check(svg_path):
     return json.loads(html.unescape(m.group(1)))
 
 
-def catalog(png_path):
+def catalog(png_path: str):
     """Render all icons to a PNG. Check shapes with this after adding or changing an icon."""
     names = list(ICONS)
     cols = 7
