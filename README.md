@@ -87,6 +87,10 @@ examples/                                # README images and the script that dra
 tests/                                   # unit tests
 ```
 
+## Contributing
+
+Bug reports and new parts are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md). Report security issues privately as described in [SECURITY.md](SECURITY.md).
+
 ## License
 
 [MIT](LICENSE)
