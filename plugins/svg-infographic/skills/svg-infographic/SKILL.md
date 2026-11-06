@@ -14,10 +14,10 @@ Renderers draw SVG differently, so **a figure is not done until it has been conv
 2. **Pick the elements**: Choose the facts, steps, or comparison axes that support the conclusion. Put at most 3–5 items in one row. If there are more, ask the user whether to group them or split the figure.
 3. **Decide the layout**: Choose the arrangement that fits the content. Do not force it into a fixed template. "Figure types and sizes" below is only a guide.
 4. **Write the SVG**: Write a generator script in a temporary working directory using the parts library `scripts/svgparts.py` (see "Parts library"). Draw directly only what the library cannot, following the same color and weight rules.
-5. **Convert to PNG and check**: `Slide.render()` (or `python3 scripts/svgparts.py render in.svg out.png`) uses a Chrome-family browser in headless mode to produce a PNG at 2× resolution. Open the PNG as an image, check the following, and fix and re-render if anything is wrong.
-   - `save()` printed no "possible overflow" warnings. The warnings are based on estimated text width, so when one appears, confirm it in the PNG
-   - Text does not touch the edges of cards or frames, and nothing overlaps
-   - Arrows, lines, and shadows are drawn, and nothing is clipped at the edges
+5. **Convert to PNG and check**: `Slide.render()` saves the SVG, uses a Chrome-family browser in headless mode to produce a PNG at 2× resolution, and then runs `check()`. `check()` opens the SVG in the browser and measures it with the real fonts. Fix every problem it prints (`CHECK ...`) and every `WARN ...` line, then render again. For an SVG written without the library, run `python3 scripts/svgparts.py render in.svg out.png` and `python3 scripts/svgparts.py check in.svg`.
+   - `check()` reports text wider than its `max_width`, text outside the canvas or across the edge of a card or box, overlapping text, lines or arrows that cross or touch text, arrows that enter a box, and filled areas over text
+   - `check()` does not judge spacing or balance. Open the PNG as an image and also check that nothing is cramped, the empty space is not lopsided, and arrows, lines, and shadows are drawn
+   - Set `SVGPARTS_CHROME_ARGS` to add browser flags (for example `--no-sandbox` where the sandbox is unavailable, such as CI)
    - The browser is searched for in this order: Google Chrome, Chromium, Microsoft Edge. If none is found, ask the user to set the environment variable `SVGPARTS_CHROME` to the browser's executable
    - Do not use macOS `sips` or `qlmanage` for conversion. `sips` renders only two weights (≤500 as regular, ≥600 as heavy) and shifts `text-anchor="middle"` text to the right. `qlmanage` crops to a square. Use `sips` only when no browser is available at all, and tell the user that weights and centering will be wrong
 6. **Hand it over**: Make the PNG visible to the user (display it if the environment can show images) and give the absolute paths of the SVG and PNG. Say what was included and what was left out. If the user asks for the code, also output the full SVG in an ```xml block.
@@ -38,8 +38,7 @@ s.header("A heading that states the conclusion", "Note at top right (ticket numb
 s.stats(60, [("Downtime", "About 15 min", C.ORANGE), ("Affected bookings", "120", C.TEXT)])
 s.section(152, "Row heading")
 s.flow(166, [("Heading", ["Description line 1", "Description line 2"], None), ("Result", ["…"], C.ORANGE)])
-s.save("/path/out.svg")
-s.render("/path/out.png")
+s.render("/path/out.png")   # also writes /path/out.svg and runs check()
 ```
 
 | Part | Use |
@@ -53,10 +52,13 @@ s.render("/path/out.png")
 | `steps(x, y, items)` | Numbered steps stacked vertically |
 | `arrow` / `arrow_down` / `line` / `dot` / `numbered` | Lines and marks |
 | `columns(n, gap)` | Width and x positions that split the area inside the side margins into n columns |
-| `text(..., max_width=)` | Text. With `max_width`, warns about possible overflow |
+| `text(..., max_width=)` | Text. With `max_width`, warns about possible overflow and `check()` measures it |
+| `paragraph(x, y, w, text, max_lines=)` | Text wrapped to width `w`. Returns the baseline of the last line |
+| `wrap(text, max_width, size)` | Splits text into lines that fit. English breaks at spaces; Japanese breaks after punctuation or particles and follows line-start rules |
 | `icon(name, x, y, size, color)` | Line icon (see the list below) |
 | `titled(x, y, icon, title)` | Card heading with an icon |
 | `stat(..., icon=)` | Puts an icon on the right of a value card |
+| `check(svg_path)` | Measures the SVG in the browser and returns layout problems (`render()` runs it automatically) |
 | `ratio(x, y, w, label, value, color, part_label, fraction)` | Card showing a total and the share of a part as one bar |
 | `node(x, y, w, h, icon, title, sub, accent)` | Diagram element (person, system, data, etc.). Icon, name, and description, centered |
 | `chain(y, items)` | Nodes in one row joined by arrows. Shows who or what something passes through |
@@ -69,6 +71,8 @@ s.render("/path/out.png")
 | `sketch(x, y, w, h, xlabels, ylabel)` | Frame for a schematic. Draw with the returned `line` / `area` / `label` in 0–1 coordinates. Writes "Schematic (not actual values)" automatically |
 | `scale(x, w, v0, v1)` / `band(x1, x2, y, h, color, label)` | A function that maps values to coordinates, and a band showing a time window or range. Use them to build a time-proportional axis |
 | `range_bar(x, y, w, label, lo, hi, vmax, value)` | Horizontal bar from minimum to maximum |
+
+Descriptions in `flow`, `chain` / `node`, and `timeline` can be a list of lines or a single string. A string is wrapped to the width of the part, and more than two lines is reported as a warning.
 
 There are 24 icons: `user` `users` `building` `server` `database` `laptop` `ai` `container` `wallet` `coin` `point` `warning` `check` `clock` `lock` `key` `document` `bell` `flag` `shield` `search` `funnel` `queue` `workflow`. Check their shapes with `python3 scripts/svgparts.py icons out.png`. To add a missing icon, add it to `ICONS` and check its shape in the catalog before using it (strokes only, inside 2–22 of a 24×24 grid).
 
@@ -156,15 +160,15 @@ If the user specifies colors, use theirs.
 
 ## Text
 
-- Font: `'Hiragino Sans', 'Yu Gothic UI', 'Noto Sans JP', system-ui, sans-serif`. With `system-ui` alone, Japanese text falls back to inconsistent fonts on Windows.
+- Font: `'Hiragino Sans', 'Yu Gothic UI', 'Noto Sans JP', 'Noto Sans CJK JP', system-ui, sans-serif`. With `system-ui` alone, Japanese text falls back to inconsistent fonts on Windows.
 - Sizes: heading 20px, row heading 15px, card heading 14–15px, values 16px, descriptions 12–13px. **Never go below 12px** (it becomes unreadable when the slide is scaled down or projected).
 - Weights: **never use 700**. At 700, CJK text is heavy and the whole figure looks dark.
   - 600: headings, row headings, card headings, and badges only
   - 500: values and secondary labels
   - 400: descriptions
   - Emphasize with color rather than weight. When many elements are bold, it is no longer clear what matters.
-- **SVG does not wrap text.** Decide line breaks yourself and call `text()` once per line.
-  - Estimate width as font-size px per full-width (CJK) character and 0.62 × font-size px per half-width character (`text_width()`).
+- **SVG does not wrap text.** Use `paragraph()`, a string description, or `wrap()`, or decide line breaks yourself and call `text()` once per line.
+  - `text_width()` estimates width from a table of ASCII widths measured with Hiragino Sans, and counts a full-width (CJK) character as font-size px. Other fonts differ, so trust `check()` over the estimate.
   - Do not break in the middle of a word. In Japanese, break after a particle or after "・".
 
 ## Rendering compatibility (things that differ between renderers)

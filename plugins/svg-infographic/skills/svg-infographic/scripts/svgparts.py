@@ -7,11 +7,11 @@ Usage:
     s = Slide("Figure title", "One sentence describing the figure (used as aria-label)")
     s.header("Slide heading", "Note at top right (optional)")
     ...
-    s.save("out.svg")      # warns about possible overflow
-    s.render("out.png")    # 2x PNG via a headless Chrome-family browser
+    s.render("out.png")    # saves out.svg, renders a 2x PNG, and checks the layout with real fonts
 
 CLI:
     python3 svgparts.py render in.svg out.png   # convert an existing SVG to PNG
+    python3 svgparts.py check in.svg            # report layout problems (exit 1 if any)
     python3 svgparts.py icons out.png           # draw the icon catalog
 
 Colors, sizes, and weights follow the rules in SKILL.md. To change how a part looks,
@@ -23,10 +23,11 @@ import re
 import shutil
 import subprocess
 import sys
+import tempfile
 import unicodedata
 from xml.sax.saxutils import escape
 
-FONT = "'Hiragino Sans', 'Yu Gothic UI', 'Noto Sans JP', system-ui, sans-serif"
+FONT = "'Hiragino Sans', 'Yu Gothic UI', 'Noto Sans JP', 'Noto Sans CJK JP', system-ui, sans-serif"
 
 # Browsers used for PNG conversion, searched in order. SVGPARTS_CHROME overrides them.
 _BROWSER_PATHS = [
@@ -56,6 +57,12 @@ def find_browser():
             return found
     raise FileNotFoundError(
         "Chrome, Chromium, or Edge not found. Set SVGPARTS_CHROME to the browser executable")
+
+
+def _browser_cmd(*args):
+    """Command line for the headless browser. SVGPARTS_CHROME_ARGS adds flags (for example --no-sandbox in CI)."""
+    extra = os.environ.get("SVGPARTS_CHROME_ARGS", "").split()
+    return [find_browser(), "--headless=new", "--disable-gpu", *extra, *args]
 
 
 class C:
@@ -140,17 +147,99 @@ ICONS = {
 }
 
 
+# Width of each printable ASCII character (U+0020-U+007E) as a fraction of font-size.
+# Measured in Chrome with Hiragino Sans; each value is the widest of weights 400, 500, and 600.
+_ASCII_WIDTHS = [
+    0.33, 0.34, 0.41, 0.72, 0.71, 0.94, 0.86, 0.23, 0.41, 0.41, 0.38, 0.69, 0.27, 0.41, 0.27, 0.52,
+    0.71, 0.71, 0.71, 0.71, 0.71, 0.71, 0.71, 0.71, 0.71, 0.71, 0.27, 0.27, 0.54, 0.69, 0.54, 0.62,
+    0.94, 0.81, 0.75, 0.79, 0.81, 0.69, 0.64, 0.79, 0.83, 0.29, 0.59, 0.78, 0.64, 0.99, 0.82, 0.84,
+    0.71, 0.84, 0.77, 0.72, 0.71, 0.83, 0.78, 1.06, 0.81, 0.76, 0.71, 0.41, 0.52, 0.41, 0.59, 0.50,
+    0.50, 0.63, 0.71, 0.63, 0.71, 0.64, 0.42, 0.69, 0.67, 0.27, 0.31, 0.65, 0.27, 1.01, 0.67, 0.67,
+    0.71, 0.71, 0.49, 0.59, 0.43, 0.67, 0.62, 0.89, 0.62, 0.63, 0.54, 0.41, 0.42, 0.41, 0.61,
+]
+
+
 def text_width(s, size):
-    """Estimated rendered width in px. Half-width characters count as 0.62x, measured with Hiragino Sans."""
+    """Estimated rendered width in px. ASCII uses the measured table above, full-width characters count as 1x,
+    and anything else as 0.7x. Fonts differ by platform, so render() also measures the real widths."""
     w = 0.0
     for ch in s:
-        if ch == " ":
-            w += size * 0.3
+        o = ord(ch)
+        if 0x20 <= o <= 0x7E:
+            w += size * _ASCII_WIDTHS[o - 0x20]
         elif unicodedata.east_asian_width(ch) in ("F", "W", "A"):
             w += size
         else:
-            w += size * 0.62
+            w += size * 0.7
     return w
+
+
+# Characters that must not start a line, and characters that must not end one (Japanese line-breaking rules).
+_NO_LINE_START = set("、。，．,.・：；:;！？!?）」』】〕〉》ーぁぃぅぇぉっゃゅょゎァィゥェォッャュョヮヵヶ々")
+_NO_LINE_END = set("（「『【〔〈《")
+
+
+def _tokens(s):
+    """Split text into units that are never broken: an ASCII word, a run of spaces, or one other character."""
+    return re.findall(r"[ ]+|[\x21-\x7E]+|.", s)
+
+
+# Particles after which a Japanese line usually breaks well (the end of a phrase).
+_PARTICLES = set("はがをにでとのもへや")
+
+
+def _is_hiragana(ch):
+    return "\u3040" <= ch <= "\u309F"
+
+
+def wrap(s, max_width, size=13):
+    """Split s into lines that fit max_width (estimated with text_width). English breaks at spaces.
+    Japanese breaks between characters, preferring a break after punctuation or after a particle that is
+    followed by kanji, katakana, or ASCII (usually the end of a phrase), and never puts 、。」 etc. at the start
+    of a line.
+    A single unit wider than max_width is kept on its own line; the overflow check reports it."""
+    toks = _tokens(s)
+    lines, cur = [], []
+
+    def width(ts):
+        return text_width("".join(ts).strip(" "), size)
+
+    def can_break(prev, nxt):
+        return not (nxt[0] in _NO_LINE_START or prev[-1] in _NO_LINE_END)
+
+    def good_break(prev, nxt):
+        if nxt[0] == " " or prev[-1] == " " or prev[-1] in "、。，,・）」』】":
+            return True
+        return prev[-1] in _PARTICLES and not _is_hiragana(nxt[0])
+
+    for t in toks:
+        if not cur:
+            if t.strip(" "):
+                cur = [t]
+            continue
+        if width(cur + [t]) <= max_width:
+            cur.append(t)
+            continue
+        # Choose where to break: the last good break that keeps the line at least half full, else the last allowed one.
+        cand = cur + [t]
+        best = None
+        for i in range(len(cand) - 1, 0, -1):
+            if width(cand[:i]) > max_width or not can_break(cand[i - 1], cand[i]):
+                continue
+            if best is None:
+                best = i
+            if good_break(cand[i - 1], cand[i]) and width(cand[:i]) >= max_width * 0.5:
+                best = i
+                break
+        if best is None:
+            best = len(cur)
+        lines.append("".join(cand[:best]).strip(" "))
+        cur = [x for x in cand[best:]]
+        while cur and not cur[0].strip(" "):
+            cur.pop(0)
+    if cur:
+        lines.append("".join(cur).strip(" "))
+    return lines
 
 
 class Slide:
@@ -170,19 +259,44 @@ class Slide:
     def raw(self, svg):
         self.out.append(svg)
 
-    def text(self, x, y, s, size=13, color=C.TEXT, weight=400, anchor="start", max_width=None):
-        """With max_width, warns when the estimated width exceeds it."""
+    def text(self, x, y, s, size=13, color=C.TEXT, weight=400, anchor="start", max_width=None, on_line=False):
+        """With max_width, warns when the estimated width exceeds it, and render() checks the measured width.
+        on_line=True marks text that is meant to sit on a line (it has its own background), so the check skips it."""
+        extra = ""
         if max_width is not None:
             w = text_width(s, size)
             if w > max_width:
                 self.warnings.append(f"Possible overflow: \"{s}\" estimated {w:.0f}px > allowed {max_width:.0f}px")
+            extra += f' data-maxw="{max_width:.1f}"'
+        if on_line:
+            extra += ' data-online="1"'
         self.out.append(f'<text x="{x:.1f}" y="{y:.1f}" font-size="{size}" font-weight="{weight}" '
-                        f'fill="{color}" text-anchor="{anchor}">{escape(s)}</text>')
+                        f'fill="{color}" text-anchor="{anchor}"{extra}>{escape(s)}</text>')
+
+    def paragraph(self, x, y, w, s, size=13, color=C.TEXT, weight=400, line_h=None, max_lines=None):
+        """Text wrapped to width w with wrap(). y is the first baseline. Returns the baseline of the last line.
+        Warns when the text needs more than max_lines lines."""
+        line_h = line_h or round(size * 1.5)
+        lines = wrap(s, w, size)
+        if max_lines is not None and len(lines) > max_lines:
+            self.warnings.append(f"Too many lines: \"{s}\" needs {len(lines)} lines > {max_lines}")
+        for i, ln in enumerate(lines):
+            self.text(x, y + i * line_h, ln, size, color, weight, max_width=w)
+        return y + (len(lines) - 1) * line_h
+
+    def _desc(self, desc, w, size=12, max_lines=2):
+        """Description given as a list of lines, or as a string that is wrapped to w."""
+        if isinstance(desc, str):
+            lines = wrap(desc, w, size)
+            if len(lines) > max_lines:
+                self.warnings.append(f"Too many lines: \"{desc}\" needs {len(lines)} lines > {max_lines}")
+            return lines
+        return list(desc)
 
     def card(self, x, y, w, h, border=C.LINE, fill=C.CARD):
         """Card with 12px corners and a shadow. The border keeps it distinct where shadows are not rendered."""
         self.out.append(f'<rect x="{x:.1f}" y="{y:.1f}" width="{w:.1f}" height="{h:.1f}" rx="12" fill="{fill}" '
-                        f'stroke="{border}" stroke-width="1" filter="url(#sh)"/>')
+                        f'stroke="{border}" stroke-width="1" filter="url(#sh)" data-part="box"/>')
 
     def line(self, x1, y1, x2, y2, color=C.LINE, width=1):
         self.out.append(f'<line x1="{x1:.1f}" y1="{y1:.1f}" x2="{x2:.1f}" y2="{y2:.1f}" stroke="{color}" stroke-width="{width}"/>')
@@ -190,18 +304,18 @@ class Slide:
     def arrow(self, x1, x2, y):
         """Right-pointing arrow. Drawn as one path for line and head, without <marker>."""
         self.out.append(f'<path d="M{x1:.1f},{y:.1f} H{x2:.1f} M{x2-6:.1f},{y-6:.1f} L{x2:.1f},{y:.1f} L{x2-6:.1f},{y+6:.1f}" '
-                        f'stroke="{C.ARROW}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>')
+                        f'stroke="{C.ARROW}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none" data-part="arrow"/>')
 
     def arrow_down(self, x, y1, y2):
         self.out.append(f'<path d="M{x:.1f},{y1:.1f} V{y2:.1f} M{x-6:.1f},{y2-6:.1f} L{x:.1f},{y2:.1f} L{x+6:.1f},{y2-6:.1f}" '
-                        f'stroke="{C.ARROW}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>')
+                        f'stroke="{C.ARROW}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none" data-part="arrow"/>')
 
     def pill(self, x, y, label, fill=C.PRIMARY, color="#FFFFFF", border=None, h=22, size=12, w=None):
         """Number or category badge. Without w, the width follows the text. Returns the badge width."""
         if w is None:
             w = round(text_width(label, size) + 24)
         s = f' stroke="{border}" stroke-width="1"' if border else ""
-        self.out.append(f'<rect x="{x:.1f}" y="{y:.1f}" width="{w}" height="{h}" rx="{h / 2}" fill="{fill}"{s}/>')
+        self.out.append(f'<rect x="{x:.1f}" y="{y:.1f}" width="{w}" height="{h}" rx="{h / 2}" fill="{fill}"{s} data-part="box"/>')
         self.text(x + w / 2, y + h / 2 + size * 0.36, label, size, color, 600, "middle")
         return w
 
@@ -231,7 +345,7 @@ class Slide:
         hx2 = x2 - 7 * math.cos(ang + 0.6)
         hy2 = y2 - 7 * math.sin(ang + 0.6)
         self.out.append(f'<path d="M{x1:.1f},{y1:.1f} L{x2:.1f},{y2:.1f} M{hx1:.1f},{hy1:.1f} L{x2:.1f},{y2:.1f} L{hx2:.1f},{hy2:.1f}" '
-                        f'stroke="{color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>')
+                        f'stroke="{color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none" data-part="arrow"/>')
         if label:
             self.text((x1 + x2) / 2, (y1 + y2) / 2 - 8, label, 12, C.SUB, 400, "middle")
 
@@ -295,13 +409,13 @@ class Slide:
         self.card(x, y, w, h, accent or C.LINE)
         self.icon(icon, x + w / 2 - 12, y + 14, 24, accent or C.SUB)
         self.text(x + w / 2, y + 58, title, 13, color, 600, "middle", max_width=w - 16)
-        for j, s_ in enumerate(sub):
+        for j, s_ in enumerate(self._desc(sub, w - 16)):
             self.text(x + w / 2, y + 78 + j * 17, s_, 12, C.SUB, 400, "middle", max_width=w - 16)
 
     def zone(self, x, y, w, h, label):
         """Frame marking an owner or environment (light fill, dashed). label goes at top left. Put nodes inside."""
         self.raw(f'<rect x="{x:.1f}" y="{y:.1f}" width="{w:.1f}" height="{h:.1f}" rx="14" fill="#F1F5F9" '
-                 f'stroke="#CBD5E1" stroke-width="1" stroke-dasharray="4 4"/>')
+                 f'stroke="#CBD5E1" stroke-width="1" stroke-dasharray="4 4" data-part="zone"/>')
         self.text(x + 14, y + 19, label, 12, C.SUB, 600, max_width=w - 28)
 
     def span(self, x1, x2, y, label, color=C.SUB):
@@ -322,7 +436,7 @@ class Slide:
             self.dot(x + 6, y, accent or C.PRIMARY, 5)
             self.text(x, y - 14, t, 14, color, 600, max_width=w)
             self.text(x, y + 28, title, 13, color, 600, max_width=w)
-            for j, d in enumerate(desc):
+            for j, d in enumerate(self._desc(desc, w)):
                 self.text(x, y + 48 + j * 18, d, 12, C.SUB, max_width=w)
         return w, xs
 
@@ -330,7 +444,7 @@ class Slide:
     def box(self, x, y, w, h, title, sub=None, fill=C.CARD, border=C.LINE, color=C.TEXT, rx=10, size=13):
         """Process step in a decision diagram (rectangle without shadow). Text is centered."""
         self.raw(f'<rect x="{x:.1f}" y="{y:.1f}" width="{w:.1f}" height="{h:.1f}" rx="{rx}" fill="{fill}" '
-                 f'stroke="{border}" stroke-width="1.2"/>')
+                 f'stroke="{border}" stroke-width="1.2" data-part="box"/>')
         if sub:
             self.text(x + w / 2, y + h / 2 - 3, title, size, color, 600, "middle", max_width=w - 16)
             self.text(x + w / 2, y + h / 2 + 14, sub, 12, C.SUB, 400, "middle", max_width=w - 16)
@@ -361,13 +475,13 @@ class Slide:
         h2 = (bx - 7 * math.cos(ang + 0.6), by - 7 * math.sin(ang + 0.6))
         d += f" M{h1[0]:.1f},{h1[1]:.1f} L{bx:.1f},{by:.1f} L{h2[0]:.1f},{h2[1]:.1f}"
         self.raw(f'<path d="{d}" stroke="{color}" stroke-width="{width}" fill="none" '
-                 f'stroke-linecap="round" stroke-linejoin="round"/>')
+                 f'stroke-linecap="round" stroke-linejoin="round" data-part="arrow"/>')
 
     def edge_label(self, x, y, label, color=C.SUB, bg=C.BG):
         """Label for an arrow ("Yes", "No", etc.) with a background fill so it does not sit on the line. y is the center."""
         w = text_width(label, 12) + 10
         self.raw(f'<rect x="{x - w / 2:.1f}" y="{y - 9:.1f}" width="{w:.1f}" height="18" rx="4" fill="{bg}"/>')
-        self.text(x, y + 4.3, label, 12, color, 500, "middle")
+        self.text(x, y + 4.3, label, 12, color, 500, "middle", on_line=True)
 
     # ---- schematics, axes, ranges ----
     def sketch(self, x, y, w, h, xlabels=(), ylabel=None, note="Schematic (not actual values)"):
@@ -426,7 +540,7 @@ class Slide:
         for i, (x, (title, desc, accent)) in enumerate(zip(xs, items)):
             self.card(x, y, w, h, accent or C.LINE)
             self.text(x + pad, y + 28, title, 14, accent or C.TEXT, 600, max_width=w - 2 * pad)
-            for j, d in enumerate(desc):
+            for j, d in enumerate(self._desc(desc, w - 2 * pad)):
                 self.text(x + pad, y + 51 + j * 18, d, 12, C.SUB, max_width=w - 2 * pad)
             if i < len(items) - 1:
                 self.arrow(x + w + gap / 2 - 7, x + w + gap / 2 + 7, y + h / 2)
@@ -474,18 +588,29 @@ class Slide:
                 self.line(x + 12, cy + 16, x + 12, cy + step - 16, C.LINE, 2)
 
     # ---- output ----
-    def save(self, path):
+    def save(self, path, quiet=False):
+        """Write the SVG and print the estimate-based warnings (unless quiet)."""
         with open(path, "w", encoding="utf-8") as f:
             f.write("\n".join(self.out + ["</svg>"]) + "\n")
-        for w in self.warnings:
-            print("WARN", w, file=sys.stderr)
+        if not quiet:
+            for w in self.warnings:
+                print("WARN", w, file=sys.stderr)
         return path
 
-    def render(self, png_path, svg_path=None, scale=2):
+    def render(self, png_path, svg_path=None, scale=2, check_layout=True):
+        """Save the SVG (next to the PNG unless svg_path is given), render the PNG, and run check().
+        Problems found by check() are printed and kept in self.issues."""
         svg_path = svg_path or os.path.splitext(png_path)[0] + ".svg"
-        if not os.path.exists(svg_path):
-            self.save(svg_path)
-        return render(svg_path, png_path, scale)
+        self.save(svg_path, quiet=True)
+        png = render(svg_path, png_path, scale)
+        self.issues = check(svg_path) if check_layout else []
+        # The measured check replaces the estimated overflow warnings; other warnings are still printed.
+        for w in self.warnings:
+            if not (check_layout and w.startswith("Possible overflow")):
+                print("WARN", w, file=sys.stderr)
+        for i in self.issues:
+            print("CHECK", i, file=sys.stderr)
+        return png
 
 
 class Sketch:
@@ -501,11 +626,11 @@ class Sketch:
         d = "M" + " L".join("{:.1f},{:.1f}".format(*self.p(fx, fy)) for fx, fy in pts)
         da = ' stroke-dasharray="6 5"' if dash else ""
         self.s.raw(f'<path d="{d}" stroke="{color}" stroke-width="{width}" fill="none" '
-                   f'stroke-linecap="round" stroke-linejoin="round"{da}/>')
+                   f'stroke-linecap="round" stroke-linejoin="round"{da} data-part="line"/>')
 
     def area(self, pts, color, opacity=0.18):
         d = "M" + " L".join("{:.1f},{:.1f}".format(*self.p(fx, fy)) for fx, fy in pts) + " Z"
-        self.s.raw(f'<path d="{d}" fill="{color}" fill-opacity="{opacity}" stroke="none"/>')
+        self.s.raw(f'<path d="{d}" fill="{color}" fill-opacity="{opacity}" stroke="none" data-part="area"/>')
 
     def label(self, fx, fy, text, color=C.SUB, anchor="start", size=12, weight=500):
         px, py = self.p(fx, fy)
@@ -514,17 +639,102 @@ class Sketch:
 
 def render(svg_path, png_path, scale=2):
     """Render to PNG with a headless Chrome-family browser. The size is read from the SVG width/height."""
-    head = open(svg_path, encoding="utf-8").read(2000)
+    with open(svg_path, encoding="utf-8") as f:
+        head = f.read(2000)
     w = int(float(re.search(r'width="([\d.]+)"', head).group(1)))
     h = int(float(re.search(r'height="([\d.]+)"', head).group(1)))
     svg_abs, png_abs = os.path.abspath(svg_path), os.path.abspath(png_path)
     if os.path.exists(png_abs):
         os.remove(png_abs)
-    subprocess.run([find_browser(), "--headless=new", "--disable-gpu", "--hide-scrollbars",
-                    f"--force-device-scale-factor={scale}", f"--window-size={w},{h}",
-                    f"--screenshot={png_abs}", pathlib.Path(svg_abs).as_uri()],
+    subprocess.run(_browser_cmd("--hide-scrollbars", f"--force-device-scale-factor={scale}", f"--window-size={w},{h}",
+                                f"--screenshot={png_abs}", pathlib.Path(svg_abs).as_uri()),
                    check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     return png_abs
+
+
+# Runs in the browser. Collects layout problems as strings into the element #out.
+_CHECK_JS = r"""
+document.fonts.ready.then(() => {
+  const svg = document.querySelector('svg');
+  const W = +svg.getAttribute('width'), H = +svg.getAttribute('height');
+  const out = [];
+  const r = b => ({x1: b.x, y1: b.y, x2: b.x + b.width, y2: b.y + b.height});
+  const name = t => JSON.stringify(t.textContent.length > 40 ? t.textContent.slice(0, 40) + '…' : t.textContent);
+  const texts = [...svg.querySelectorAll('text')].filter(t => t.textContent.trim()).map(t => ({t, b: r(t.getBBox())}));
+  const boxes = [...svg.querySelectorAll('[data-part="box"]')].map(e => r(e.getBBox()));
+  const arrows = [...svg.querySelectorAll('[data-part="arrow"]')];
+  const lines = [...svg.querySelectorAll('[data-part="arrow"], [data-part="line"]')];
+  const samples = el => { const n = el.getTotalLength(), p = []; for (let d = 0; d <= n; d += 2) p.push(el.getPointAtLength(d)); return p; };
+  const inter = (a, b, m) => a.x1 + m < b.x2 && b.x1 + m < a.x2 && a.y1 + m < b.y2 && b.y1 + m < a.y2;
+  const inside = (a, b) => a.x1 >= b.x1 && a.x2 <= b.x2 && a.y1 >= b.y1 && a.y2 <= b.y2;
+  for (const {t, b} of texts) {
+    const maxw = t.getAttribute('data-maxw');
+    const w = t.getComputedTextLength();
+    if (maxw !== null && w > +maxw + 0.5)
+      out.push(`Overflow: ${name(t)} is ${w.toFixed(0)}px > allowed ${(+maxw).toFixed(0)}px`);
+    if (b.x1 < 0 || b.y1 < 0 || b.x2 > W || b.y2 > H)
+      out.push(`Outside the canvas: ${name(t)}`);
+    for (const c of boxes) {
+      if (inter(b, c, 0) && !inside(b, c))
+        out.push(`Crosses the edge of a box: ${name(t)}`);
+    }
+  }
+  for (let i = 0; i < texts.length; i++)
+    for (let j = i + 1; j < texts.length; j++)
+      if (inter(texts[i].b, texts[j].b, 1))
+        out.push(`Overlapping text: ${name(texts[i].t)} and ${name(texts[j].t)}`);
+  for (const a of lines) {
+    const pts = samples(a);
+    const what = a.getAttribute('data-part') === 'arrow' ? 'Arrow' : 'Line';
+    for (const {t, b} of texts) {
+      if (t.getAttribute('data-online')) continue;
+      if (pts.some(p => p.x > b.x1 + 1 && p.x < b.x2 - 1 && p.y > b.y1 + 1 && p.y < b.y2 - 1))
+        out.push(`${what} crosses text: ${name(t)}`);
+      else if (pts.some(p => p.x > b.x1 - 2 && p.x < b.x2 + 2 && p.y > b.y1 - 2 && p.y < b.y2 + 2))
+        out.push(`${what} touches text: ${name(t)}`);
+    }
+  }
+  for (const a of svg.querySelectorAll('[data-part="area"]')) {
+    for (const {t, b} of texts) {
+      const probe = [[b.x1 + 1, b.y1 + 1], [b.x2 - 1, b.y1 + 1], [b.x1 + 1, b.y2 - 1], [b.x2 - 1, b.y2 - 1],
+                     [(b.x1 + b.x2) / 2, (b.y1 + b.y2) / 2]];
+      if (probe.some(([x, y]) => a.isPointInFill(new DOMPoint(x, y))))
+        out.push(`Filled area covers text: ${name(t)}`);
+    }
+  }
+  for (const a of arrows) {
+    const pts = samples(a);
+    for (const c of boxes) {
+      if (pts.some(p => p.x > c.x1 + 3 && p.x < c.x2 - 3 && p.y > c.y1 + 3 && p.y < c.y2 - 3)
+          && !pts.every(p => p.x >= c.x1 && p.x <= c.x2 && p.y >= c.y1 && p.y <= c.y2))
+        out.push(`Arrow enters a box: the box at (${c.x1.toFixed(0)},${c.y1.toFixed(0)})`);
+    }
+  }
+  document.getElementById('out').textContent = '@@CHECK@@' + JSON.stringify([...new Set(out)]) + '@@END@@';
+});
+"""
+
+
+def check(svg_path):
+    """Open the SVG in a headless Chrome-family browser and return layout problems found with the real fonts:
+    text wider than its max_width, text outside the canvas or across the edge of a card or box, overlapping text,
+    lines or arrows that cross or touch text, arrows that enter a box, and filled areas over text.
+    An empty list means no problems were found."""
+    with open(svg_path, encoding="utf-8") as f:
+        svg = f.read()
+    with tempfile.TemporaryDirectory() as d:
+        page = os.path.join(d, "check.html")
+        with open(page, "w", encoding="utf-8") as f:
+            f.write('<!doctype html><meta charset="utf-8"><body style="margin:0">' + svg +
+                    '<pre id="out"></pre><script>' + _CHECK_JS + "</script></body>")
+        res = subprocess.run(_browser_cmd("--virtual-time-budget=5000", "--dump-dom", pathlib.Path(page).as_uri()),
+                             check=True, capture_output=True, text=True, encoding="utf-8")
+    m = re.search(r"@@CHECK@@(.*?)@@END@@", res.stdout, re.S)
+    if not m:
+        raise RuntimeError("check() got no result from the browser")
+    import html
+    import json
+    return json.loads(html.unescape(m.group(1)))
 
 
 def catalog(png_path):
@@ -547,8 +757,14 @@ def catalog(png_path):
 if __name__ == "__main__":
     if len(sys.argv) == 4 and sys.argv[1] == "render":
         print(render(sys.argv[2], sys.argv[3]))
+    elif len(sys.argv) == 3 and sys.argv[1] == "check":
+        problems = check(sys.argv[2])
+        for p in problems:
+            print("CHECK", p)
+        sys.exit(1 if problems else 0)
     elif len(sys.argv) == 3 and sys.argv[1] == "icons":
         print(catalog(sys.argv[2]))
     else:
-        print("usage: svgparts.py render in.svg out.png | svgparts.py icons out.png", file=sys.stderr)
+        print("usage: svgparts.py render in.svg out.png | svgparts.py check in.svg | svgparts.py icons out.png",
+              file=sys.stderr)
         sys.exit(2)
