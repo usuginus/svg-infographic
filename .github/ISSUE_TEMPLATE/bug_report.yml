@@ -1,0 +1,32 @@
+name: Bug report
+description: A figure is drawn wrong, check() reports something wrong, or a command fails
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you expected, and what you got instead.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: How to reproduce
+      description: The script or request that drew the figure. Attach the SVG and PNG if you can (drag them here). Do not attach confidential content.
+    validations:
+      required: true
+  - type: textarea
+    id: output
+    attributes:
+      label: WARN and CHECK output
+      description: The lines printed by save(), render(), or svgparts.py check.
+      render: text
+  - type: input
+    id: env
+    attributes:
+      label: Environment
+      description: OS, browser and version, and the font used for the text.
+      placeholder: macOS 15, Chrome 141, Hiragino Sans
+    validations:
+      required: true

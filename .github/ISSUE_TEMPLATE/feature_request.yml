@@ -1,0 +1,16 @@
+name: Part or feature request
+description: Suggest a new part, an option for an existing part, or a change to the rules
+labels: [enhancement]
+body:
+  - type: textarea
+    id: figure
+    attributes:
+      label: The figure you want to draw
+      description: What the figure should show, and why the current parts do not cover it. A rough sketch or a link to an example helps.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed part or option
+      description: The function and arguments you have in mind, if any.
