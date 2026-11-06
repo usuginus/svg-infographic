@@ -1,50 +1,50 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540" font-family="'Hiragino Sans', 'Yu Gothic UI', 'Noto Sans JP', system-ui, sans-serif" role="img" aria-label="メール・プッシュ通知・SMS を、届く速さ・費用・向いている用途で比べる">
-<title>通知の送り方の比較</title>
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540" font-family="'Hiragino Sans', 'Yu Gothic UI', 'Noto Sans JP', system-ui, sans-serif" role="img" aria-label="Email, push notifications, and SMS compared by speed, cost, and best use">
+<title>Comparing notification channels</title>
 <defs><filter id="sh" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.07"/></filter></defs>
 <rect width="960" height="540" fill="#F8FAFC"/>
-<text x="24.0" y="42.0" font-size="20" font-weight="600" fill="#1E293B" text-anchor="start">期限が近い連絡はプッシュ通知、記録に残す連絡はメールで送る</text>
-<text x="936.0" y="42.0" font-size="12" font-weight="400" fill="#64748B" text-anchor="end">方式の比較</text>
-<text x="24.0" y="96.0" font-size="15" font-weight="600" fill="#1E293B" text-anchor="start">3 つの方式の違い</text>
+<text x="24.0" y="42.0" font-size="20" font-weight="600" fill="#1E293B" text-anchor="start">Send urgent notices by push, and notices to keep by email</text>
+<text x="936.0" y="42.0" font-size="12" font-weight="400" fill="#64748B" text-anchor="end">Comparison</text>
+<text x="24.0" y="96.0" font-size="15" font-weight="600" fill="#1E293B" text-anchor="start">How the three channels differ</text>
 <rect x="24.0" y="112.0" width="912.0" height="162.0" rx="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1" filter="url(#sh)"/>
-<text x="40.0" y="132.0" font-size="12" font-weight="500" fill="#64748B" text-anchor="start">方式</text>
-<text x="174.0" y="132.0" font-size="12" font-weight="500" fill="#64748B" text-anchor="start">届く速さ</text>
-<text x="314.0" y="132.0" font-size="12" font-weight="500" fill="#64748B" text-anchor="start">費用</text>
-<text x="444.0" y="132.0" font-size="12" font-weight="500" fill="#64748B" text-anchor="start">記録に残るか</text>
-<text x="604.0" y="132.0" font-size="12" font-weight="500" fill="#64748B" text-anchor="start">向いている用途</text>
+<text x="40.0" y="132.0" font-size="12" font-weight="500" fill="#64748B" text-anchor="start">Channel</text>
+<text x="164.0" y="132.0" font-size="12" font-weight="500" fill="#64748B" text-anchor="start">Delivery</text>
+<text x="334.0" y="132.0" font-size="12" font-weight="500" fill="#64748B" text-anchor="start">Cost</text>
+<text x="494.0" y="132.0" font-size="12" font-weight="500" fill="#64748B" text-anchor="start">Kept as a record</text>
+<text x="644.0" y="132.0" font-size="12" font-weight="500" fill="#64748B" text-anchor="start">Best for</text>
 <line x1="24.0" y1="142.0" x2="936.0" y2="142.0" stroke="#E2E8F0" stroke-width="1"/>
-<text x="40.0" y="169.0" font-size="13" font-weight="400" fill="#1E293B" text-anchor="start">メール</text>
-<text x="174.0" y="169.0" font-size="12.5" font-weight="400" fill="#1E293B" text-anchor="start">数秒〜数分</text>
-<text x="314.0" y="169.0" font-size="12.5" font-weight="400" fill="#1E293B" text-anchor="start">ほぼ無料</text>
-<text x="444.0" y="169.0" font-size="12.5" font-weight="500" fill="#10B981" text-anchor="start">残る</text>
-<text x="604.0" y="169.0" font-size="12.5" font-weight="400" fill="#1E293B" text-anchor="start">受付の控え・領収書</text>
+<text x="40.0" y="169.0" font-size="13" font-weight="400" fill="#1E293B" text-anchor="start">Email</text>
+<text x="164.0" y="169.0" font-size="12.5" font-weight="400" fill="#1E293B" text-anchor="start">Seconds to minutes</text>
+<text x="334.0" y="169.0" font-size="12.5" font-weight="400" fill="#1E293B" text-anchor="start">Nearly free</text>
+<text x="494.0" y="169.0" font-size="12.5" font-weight="500" fill="#10B981" text-anchor="start">Yes</text>
+<text x="644.0" y="169.0" font-size="12.5" font-weight="400" fill="#1E293B" text-anchor="start">Receipts, confirmations</text>
 <rect x="25.0" y="186.0" width="910.0" height="44" fill="#EFF6FF"/>
 <line x1="24.0" y1="186.0" x2="936.0" y2="186.0" stroke="#E2E8F0" stroke-width="1"/>
-<text x="40.0" y="213.0" font-size="13" font-weight="400" fill="#1E293B" text-anchor="start">プッシュ通知</text>
-<text x="174.0" y="213.0" font-size="12.5" font-weight="500" fill="#10B981" text-anchor="start">数秒</text>
-<text x="314.0" y="213.0" font-size="12.5" font-weight="400" fill="#1E293B" text-anchor="start">ほぼ無料</text>
-<text x="444.0" y="213.0" font-size="12.5" font-weight="400" fill="#1E293B" text-anchor="start">残りにくい</text>
-<text x="604.0" y="213.0" font-size="12.5" font-weight="400" fill="#1E293B" text-anchor="start">期限が近い連絡</text>
+<text x="40.0" y="213.0" font-size="13" font-weight="400" fill="#1E293B" text-anchor="start">Push</text>
+<text x="164.0" y="213.0" font-size="12.5" font-weight="500" fill="#10B981" text-anchor="start">Seconds</text>
+<text x="334.0" y="213.0" font-size="12.5" font-weight="400" fill="#1E293B" text-anchor="start">Nearly free</text>
+<text x="494.0" y="213.0" font-size="12.5" font-weight="400" fill="#1E293B" text-anchor="start">Rarely</text>
+<text x="644.0" y="213.0" font-size="12.5" font-weight="400" fill="#1E293B" text-anchor="start">Notices with a close deadline</text>
 <line x1="24.0" y1="230.0" x2="936.0" y2="230.0" stroke="#E2E8F0" stroke-width="1"/>
 <text x="40.0" y="257.0" font-size="13" font-weight="400" fill="#1E293B" text-anchor="start">SMS</text>
-<text x="174.0" y="257.0" font-size="12.5" font-weight="500" fill="#10B981" text-anchor="start">数秒</text>
-<text x="314.0" y="257.0" font-size="12.5" font-weight="500" fill="#F97316" text-anchor="start">1 通ごとに費用</text>
-<text x="444.0" y="257.0" font-size="12.5" font-weight="400" fill="#1E293B" text-anchor="start">端末に残る</text>
-<text x="604.0" y="257.0" font-size="12.5" font-weight="400" fill="#1E293B" text-anchor="start">本人確認の番号</text>
-<text x="24.0" y="330.0" font-size="15" font-weight="600" fill="#1E293B" text-anchor="start">選び方</text>
+<text x="164.0" y="257.0" font-size="12.5" font-weight="500" fill="#10B981" text-anchor="start">Seconds</text>
+<text x="334.0" y="257.0" font-size="12.5" font-weight="500" fill="#F97316" text-anchor="start">Charged per message</text>
+<text x="494.0" y="257.0" font-size="12.5" font-weight="400" fill="#1E293B" text-anchor="start">On the device</text>
+<text x="644.0" y="257.0" font-size="12.5" font-weight="400" fill="#1E293B" text-anchor="start">Verification codes</text>
+<text x="24.0" y="330.0" font-size="15" font-weight="600" fill="#1E293B" text-anchor="start">How to choose</text>
 <rect x="24.0" y="350.0" width="380.0" height="64.0" rx="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1" filter="url(#sh)"/>
-<text x="44.0" y="377.0" font-size="14" font-weight="600" fill="#1E293B" text-anchor="start">当日中に読んでほしい連絡か</text>
-<text x="44.0" y="398.0" font-size="12" font-weight="400" fill="#64748B" text-anchor="start">締め切りや受け取りの期限が近い</text>
+<text x="44.0" y="377.0" font-size="14" font-weight="600" fill="#1E293B" text-anchor="start">Must it be read today?</text>
+<text x="44.0" y="398.0" font-size="12" font-weight="400" fill="#64748B" text-anchor="start">A deadline or pickup period is close</text>
 <path d="M416.0,382.0 L516.0,382.0 M510.2,386.0 L516.0,382.0 L510.2,378.0" stroke="#94A3B8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-<text x="466.0" y="374.0" font-size="12" font-weight="400" fill="#64748B" text-anchor="middle">はい</text>
+<text x="466.0" y="374.0" font-size="12" font-weight="400" fill="#64748B" text-anchor="middle">Yes</text>
 <rect x="524.0" y="350.0" width="412.0" height="64.0" rx="12" fill="#FFFFFF" stroke="#2563EB" stroke-width="1" filter="url(#sh)"/>
-<text x="544.0" y="377.0" font-size="14" font-weight="600" fill="#2563EB" text-anchor="start">プッシュ通知で送る</text>
-<text x="544.0" y="398.0" font-size="12" font-weight="400" fill="#64748B" text-anchor="start">アプリを入れていない人にはメールでも送る</text>
+<text x="544.0" y="377.0" font-size="14" font-weight="600" fill="#2563EB" text-anchor="start">Send a push notification</text>
+<text x="544.0" y="398.0" font-size="12" font-weight="400" fill="#64748B" text-anchor="start">Also email patrons who do not have the app</text>
 <rect x="24.0" y="432.0" width="380.0" height="64.0" rx="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1" filter="url(#sh)"/>
-<text x="44.0" y="459.0" font-size="14" font-weight="600" fill="#1E293B" text-anchor="start">後で見返す必要がある連絡か</text>
-<text x="44.0" y="480.0" font-size="12" font-weight="400" fill="#64748B" text-anchor="start">受付の控え・領収書・規約の変更</text>
+<text x="44.0" y="459.0" font-size="14" font-weight="600" fill="#1E293B" text-anchor="start">Will they need to look it up later?</text>
+<text x="44.0" y="480.0" font-size="12" font-weight="400" fill="#64748B" text-anchor="start">Receipts, confirmations, changes to terms</text>
 <path d="M416.0,464.0 L516.0,464.0 M510.2,468.0 L516.0,464.0 L510.2,460.0" stroke="#94A3B8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-<text x="466.0" y="456.0" font-size="12" font-weight="400" fill="#64748B" text-anchor="middle">はい</text>
+<text x="466.0" y="456.0" font-size="12" font-weight="400" fill="#64748B" text-anchor="middle">Yes</text>
 <rect x="524.0" y="432.0" width="412.0" height="64.0" rx="12" fill="#FFFFFF" stroke="#10B981" stroke-width="1" filter="url(#sh)"/>
-<text x="544.0" y="459.0" font-size="14" font-weight="600" fill="#10B981" text-anchor="start">メールで送る</text>
-<text x="544.0" y="480.0" font-size="12" font-weight="400" fill="#64748B" text-anchor="start">件名に用件と日付を入れる</text>
+<text x="544.0" y="459.0" font-size="14" font-weight="600" fill="#10B981" text-anchor="start">Send an email</text>
+<text x="544.0" y="480.0" font-size="12" font-weight="400" fill="#64748B" text-anchor="start">Put the topic and date in the subject</text>
 </svg>

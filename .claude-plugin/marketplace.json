@@ -12,7 +12,7 @@
     {
       "name": "svg-infographic",
       "source": "./plugins/svg-infographic",
-      "description": "業務フロー・比較表・階層図・ロードマップなどのインフォグラフィックを、スライドに貼れる SVG で作り、PNG で見た目を確認してから渡すスキル",
+      "description": "Draws business infographics as a single slide-ready SVG and checks them as PNG before handing them over",
       "version": "1.0.0",
       "author": {
         "name": "usuginus",
@@ -21,7 +21,12 @@
       "homepage": "https://github.com/usuginus/svg-infographic",
       "repository": "https://github.com/usuginus/svg-infographic",
       "license": "MIT",
-      "keywords": ["infographic", "svg", "diagram", "slides", "japanese"],
+      "keywords": [
+        "infographic",
+        "svg",
+        "diagram",
+        "slides"
+      ],
       "category": "productivity"
     }
   ]

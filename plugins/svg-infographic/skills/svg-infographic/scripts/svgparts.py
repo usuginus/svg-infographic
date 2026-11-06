@@ -1,20 +1,21 @@
-"""SVG インフォグラフィックの部品集。
+"""Parts library for SVG infographics.
 
-使い方:
-    import sys; sys.path.insert(0, "<このスキルのディレクトリ>/scripts")
+Usage:
+    import sys; sys.path.insert(0, "<skill directory>/scripts")
     from svgparts import Slide, C
 
-    s = Slide("図のタイトル", "図の内容を一文で（aria-label に入る）")
-    s.header("スライドの見出し", "右上の補足（任意）")
+    s = Slide("Figure title", "One sentence describing the figure (used as aria-label)")
+    s.header("Slide heading", "Note at top right (optional)")
     ...
-    s.save("out.svg")      # はみ出しの疑いがあれば警告を出す
-    s.render("out.png")    # Chrome 系のブラウザのヘッドレスモードで 2 倍解像度の PNG にする
+    s.save("out.svg")      # warns about possible overflow
+    s.render("out.png")    # 2x PNG via a headless Chrome-family browser
 
 CLI:
-    python3 svgparts.py render in.svg out.png   # 既存の SVG を PNG にする
+    python3 svgparts.py render in.svg out.png   # convert an existing SVG to PNG
+    python3 svgparts.py icons out.png           # draw the icon catalog
 
-色・サイズ・太さは SKILL.md の規則に合わせてある。部品の見た目を変えるときは、この
-ファイルを直して全部の図で揃える。
+Colors, sizes, and weights follow the rules in SKILL.md. To change how a part looks,
+change this file so that every figure stays consistent.
 """
 import os
 import pathlib
@@ -27,7 +28,7 @@ from xml.sax.saxutils import escape
 
 FONT = "'Hiragino Sans', 'Yu Gothic UI', 'Noto Sans JP', system-ui, sans-serif"
 
-# PNG への変換に使うブラウザの候補。上から順に探す。SVGPARTS_CHROME があればそれを使う。
+# Browsers used for PNG conversion, searched in order. SVGPARTS_CHROME overrides them.
 _BROWSER_PATHS = [
     "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
     "/Applications/Chromium.app/Contents/MacOS/Chromium",
@@ -40,12 +41,12 @@ _BROWSER_COMMANDS = ["google-chrome", "google-chrome-stable", "chromium", "chrom
 
 
 def find_browser():
-    """PNG への変換に使うブラウザの実行ファイルを返す。見つからなければ例外。"""
+    """Return the browser executable used for PNG conversion. Raise if none is found."""
     env = os.environ.get("SVGPARTS_CHROME")
     if env:
         if os.path.exists(env) or shutil.which(env):
             return env
-        raise FileNotFoundError(f"SVGPARTS_CHROME に指定されたブラウザが見つからない: {env}")
+        raise FileNotFoundError(f"Browser set in SVGPARTS_CHROME not found: {env}")
     for p in _BROWSER_PATHS:
         if os.path.exists(p):
             return p
@@ -54,17 +55,17 @@ def find_browser():
         if found:
             return found
     raise FileNotFoundError(
-        "Chrome・Chromium・Edge が見つからない。環境変数 SVGPARTS_CHROME にブラウザの実行ファイルのパスを入れる")
+        "Chrome, Chromium, or Edge not found. Set SVGPARTS_CHROME to the browser executable")
 
 
 class C:
-    """色。役割は SKILL.md の色の表を参照。"""
+    """Colors. See the color table in SKILL.md for their roles."""
     PRIMARY = "#2563EB"
     PRIMARY_BG = "#EFF6FF"
-    ORANGE = "#F97316"     # 問題点・注目点
+    ORANGE = "#F97316"     # problems, points of attention
     ORANGE_BG = "#FFF7ED"
     ORANGE_LINE = "#FDBA74"
-    GREEN = "#10B981"      # 完了・到達点
+    GREEN = "#10B981"      # done, reached
     GREEN_BG = "#ECFDF5"
     BG = "#F8FAFC"
     CARD = "#FFFFFF"
@@ -74,8 +75,8 @@ class C:
     ARROW = "#94A3B8"
 
 
-# アイコン。24×24 の格子に線で描く。"CUR" は描画時に線の色に置き換える（塗りつぶす点など）。
-# 形は自作。種類を増やすときも、線だけ・角は丸く・格子の 2〜22 の内側に収める。
+# Icons drawn with strokes on a 24x24 grid. "CUR" is replaced with the stroke color (for filled dots).
+# All shapes are original. New icons: strokes only, round joins, inside 2-22 of the grid.
 ICONS = {
     "user": ['<circle cx="12" cy="8" r="4"/>',
              '<path d="M4,21 C4,16.6 7.6,14 12,14 C16.4,14 20,16.6 20,21"/>'],
@@ -140,7 +141,7 @@ ICONS = {
 
 
 def text_width(s, size):
-    """描画幅の見積もり（px）。Hiragino Sans の実測に合わせて半角は 0.62 倍で見る。"""
+    """Estimated rendered width in px. Half-width characters count as 0.62x, measured with Hiragino Sans."""
     w = 0.0
     for ch in s:
         if ch == " ":
@@ -165,21 +166,21 @@ class Slide:
           '<feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.07"/></filter></defs>')
         a(f'<rect width="{width}" height="{height}" fill="{C.BG}"/>')
 
-    # ---- 基本要素 ----
+    # ---- basic elements ----
     def raw(self, svg):
         self.out.append(svg)
 
     def text(self, x, y, s, size=13, color=C.TEXT, weight=400, anchor="start", max_width=None):
-        """max_width を渡すと、見積もり幅が超えたときに警告を出す。"""
+        """With max_width, warns when the estimated width exceeds it."""
         if max_width is not None:
             w = text_width(s, size)
             if w > max_width:
-                self.warnings.append(f"はみ出しの疑い: 「{s}」 見積もり {w:.0f}px > 許容 {max_width:.0f}px")
+                self.warnings.append(f"Possible overflow: \"{s}\" estimated {w:.0f}px > allowed {max_width:.0f}px")
         self.out.append(f'<text x="{x:.1f}" y="{y:.1f}" font-size="{size}" font-weight="{weight}" '
                         f'fill="{color}" text-anchor="{anchor}">{escape(s)}</text>')
 
     def card(self, x, y, w, h, border=C.LINE, fill=C.CARD):
-        """角丸 12px・影付きのカード。影が描画されない環境でも枠線で区切りが分かる。"""
+        """Card with 12px corners and a shadow. The border keeps it distinct where shadows are not rendered."""
         self.out.append(f'<rect x="{x:.1f}" y="{y:.1f}" width="{w:.1f}" height="{h:.1f}" rx="12" fill="{fill}" '
                         f'stroke="{border}" stroke-width="1" filter="url(#sh)"/>')
 
@@ -187,7 +188,7 @@ class Slide:
         self.out.append(f'<line x1="{x1:.1f}" y1="{y1:.1f}" x2="{x2:.1f}" y2="{y2:.1f}" stroke="{color}" stroke-width="{width}"/>')
 
     def arrow(self, x1, x2, y):
-        """右向きの矢印。marker を使わず、線と先端を 1 本の path で描く。"""
+        """Right-pointing arrow. Drawn as one path for line and head, without <marker>."""
         self.out.append(f'<path d="M{x1:.1f},{y:.1f} H{x2:.1f} M{x2-6:.1f},{y-6:.1f} L{x2:.1f},{y:.1f} L{x2-6:.1f},{y+6:.1f}" '
                         f'stroke="{C.ARROW}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>')
 
@@ -196,7 +197,7 @@ class Slide:
                         f'stroke="{C.ARROW}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>')
 
     def pill(self, x, y, label, fill=C.PRIMARY, color="#FFFFFF", border=None, h=22, size=12, w=None):
-        """番号・分類のバッジ。w を省くと文字幅から決める。戻り値はバッジの幅。"""
+        """Number or category badge. Without w, the width follows the text. Returns the badge width."""
         if w is None:
             w = round(text_width(label, size) + 24)
         s = f' stroke="{border}" stroke-width="1"' if border else ""
@@ -212,18 +213,18 @@ class Slide:
         self.text(cx, cy + 5, str(n), 13, "#FFFFFF", 600, "middle")
 
     def icon(self, name, x, y, size=22, color=C.SUB):
-        """アイコン（ICONS のキー）。(x, y) は左上。線の太さは大きさによらず 1.75px に見える。"""
+        """Icon (a key of ICONS). (x, y) is the top left. The stroke looks 1.75px at any size."""
         k = size / 24
         body = "".join(ICONS[name]).replace("CUR", color)
         self.out.append(f'<g transform="translate({x:.1f},{y:.1f}) scale({k:.4f})" fill="none" stroke="{color}" '
                         f'stroke-width="{1.75 / k:.2f}" stroke-linecap="round" stroke-linejoin="round">{body}</g>')
 
     def connector(self, x1, y1, x2, y2, color=C.ARROW, label=None):
-        """任意の向きの矢印（終点に先端）。label を渡すと線の中点の上に小さく書く。"""
+        """Arrow in any direction (head at the end point). label is written small above the midpoint."""
         import math
         if math.hypot(x2 - x1, y2 - y1) < 28:
-            self.warnings.append(f"矢印が短い: ({x1:.0f},{y1:.0f})→({x2:.0f},{y2:.0f}) は "
-                                 f"{math.hypot(x2 - x1, y2 - y1):.0f}px。28px 以上にする")
+            self.warnings.append(f"Arrow too short: ({x1:.0f},{y1:.0f})->({x2:.0f},{y2:.0f}) is "
+                                 f"{math.hypot(x2 - x1, y2 - y1):.0f}px. Make it at least 28px")
         ang = math.atan2(y2 - y1, x2 - x1)
         hx1 = x2 - 7 * math.cos(ang - 0.6)
         hy1 = y2 - 7 * math.sin(ang - 0.6)
@@ -235,31 +236,31 @@ class Slide:
             self.text((x1 + x2) / 2, (y1 + y2) / 2 - 8, label, 12, C.SUB, 400, "middle")
 
     def titled(self, x, y, icon, title, size=15, color=C.TEXT, icon_color=C.SUB, max_width=None):
-        """アイコン付きの見出し。y は文字のベースライン。"""
+        """Heading with an icon. y is the text baseline."""
         self.icon(icon, x, y - size + 1 - (22 - size) / 2, 22, icon_color)
         self.text(x + 30, y, title, size, color, 600, max_width=None if max_width is None else max_width - 30)
 
-    # ---- 配置 ----
+    # ---- layout ----
     def columns(self, n, gap=12, left=None, right=None):
-        """左右の余白の内側を n 等分する。戻り値は (幅, 各列の x)。"""
+        """Split the area inside the side margins into n columns. Returns (width, x of each column)."""
         left = self.M if left is None else left
         right = self.W - self.M if right is None else right
         w = (right - left - gap * (n - 1)) / n
         return w, [left + i * (w + gap) for i in range(n)]
 
-    # ---- 組み合わせ部品 ----
+    # ---- composite parts ----
     def header(self, title, meta=None, y=42):
-        """スライドの見出し（20px・600）と、右上の補足（12px）。見出しには結論を書く。"""
+        """Slide heading (20px, 600) and note at top right (12px). The heading states the conclusion."""
         self.text(self.M, y, title, 20, C.TEXT, 600, max_width=self.W - 2 * self.M - (220 if meta else 0))
         if meta:
             self.text(self.W - self.M, y, meta, 12, C.SUB, 400, "end")
 
     def section(self, y, title):
-        """段の見出し（15px・600）。"""
+        """Row heading (15px, 600)."""
         self.text(self.M, y, title, 15, C.TEXT, 600, max_width=self.W - 2 * self.M)
 
     def stat(self, x, y, w, label, value, color=C.TEXT, h=58, icon=None):
-        """ラベルと数値の組。数値は 16px・500。icon を渡すと右上にアイコンを置く。"""
+        """Label and value pair. Value is 16px, 500. With icon, an icon is placed on the right."""
         self.card(x, y, w, h)
         room = w - 2 * self.PAD - (30 if icon else 0)
         self.text(x + self.PAD, y + 22, label, 12, C.SUB, max_width=room)
@@ -268,7 +269,7 @@ class Slide:
             self.icon(icon, x + w - self.PAD - 22, y + (h - 22) / 2, 22, color if color != C.TEXT else C.SUB)
 
     def stats(self, y, items, gap=12):
-        """stat を横一列に並べる。items = [(ラベル, 値, 色) または (ラベル, 値, 色, アイコン), ...]"""
+        """stat cards in one row. items = [(label, value, color) or (label, value, color, icon), ...]"""
         w, xs = self.columns(len(items), gap)
         for x, item in zip(xs, items):
             label, value, color = item[:3]
@@ -276,8 +277,8 @@ class Slide:
 
     def ratio(self, x, y, w, label, value, value_color, part_label, fraction,
               fill=C.GREEN, track=C.ORANGE_BG, h=58):
-        """全体の値と、そのうちの割合を 1 本の帯で示すカード。
-        左に全体の値、右に「うち〜」の説明と帯。帯の塗りが fraction（0〜1）。"""
+        """Card showing a total and the share of a part as one bar.
+        Total on the left; the part's label and the bar on the right. The bar fill is fraction (0-1)."""
         self.card(x, y, w, h)
         self.text(x + self.PAD, y + 22, label, 12, C.SUB)
         self.text(x + self.PAD, y + 45, value, 16, value_color, 500)
@@ -289,7 +290,7 @@ class Slide:
         self.raw(f'<rect x="{left:.1f}" y="{y + 33:.1f}" width="{bw * fraction:.1f}" height="10" rx="5" fill="{fill}"/>')
 
     def node(self, x, y, w, h, icon, title, sub=(), accent=None):
-        """図解の要素（人・システム・データなど）。上にアイコン、下に名前と説明を中央そろえで書く。"""
+        """Diagram element (person, system, data, etc.). Icon on top, then name and description, centered."""
         color = accent or C.TEXT
         self.card(x, y, w, h, accent or C.LINE)
         self.icon(icon, x + w / 2 - 12, y + 14, 24, accent or C.SUB)
@@ -298,20 +299,20 @@ class Slide:
             self.text(x + w / 2, y + 78 + j * 17, s_, 12, C.SUB, 400, "middle", max_width=w - 16)
 
     def zone(self, x, y, w, h, label):
-        """持ち主や環境の区域を示す枠（淡い背景・破線）。label は左上に書く。中に node を置く。"""
+        """Frame marking an owner or environment (light fill, dashed). label goes at top left. Put nodes inside."""
         self.raw(f'<rect x="{x:.1f}" y="{y:.1f}" width="{w:.1f}" height="{h:.1f}" rx="14" fill="#F1F5F9" '
                  f'stroke="#CBD5E1" stroke-width="1" stroke-dasharray="4 4"/>')
         self.text(x + 14, y + 19, label, 12, C.SUB, 600, max_width=w - 28)
 
     def span(self, x1, x2, y, label, color=C.SUB):
-        """x1〜x2 の範囲を示す線と、その上のラベル。「メールを送る前」などの区切りに使う。"""
+        """Bracket over x1-x2 with a label above, for ranges such as "before the email is sent"."""
         self.raw(f'<path d="M{x1:.1f},{y + 6:.1f} V{y:.1f} H{x2:.1f} V{y + 6:.1f}" stroke="{color}" stroke-width="1.5" '
                  f'fill="none" stroke-linecap="round" stroke-linejoin="round"/>')
         self.text((x1 + x2) / 2, y - 7, label, 12, color, 500, "middle", max_width=x2 - x1)
 
     def timeline(self, y, items, gap=16, left=None, right=None):
-        """時刻順の出来事を等間隔に並べる（間隔は時間の長さに比例しない）。
-        items = [(時刻, 見出し, [説明...], 強調色 or None), ...]。y は軸の位置。"""
+        """Events in time order at equal spacing (spacing is not proportional to time).
+        items = [(time, heading, [description...], accent or None), ...]. y is the axis position."""
         w, xs = self.columns(len(items), gap, left, right)
         x0 = xs[0]
         x1 = xs[-1] + w
@@ -325,9 +326,9 @@ class Slide:
                 self.text(x, y + 48 + j * 18, d, 12, C.SUB, max_width=w)
         return w, xs
 
-    # ---- 分岐図 ----
+    # ---- decision diagrams ----
     def box(self, x, y, w, h, title, sub=None, fill=C.CARD, border=C.LINE, color=C.TEXT, rx=10, size=13):
-        """分岐図の処理（影なしの四角）。文字は中央そろえ。"""
+        """Process step in a decision diagram (rectangle without shadow). Text is centered."""
         self.raw(f'<rect x="{x:.1f}" y="{y:.1f}" width="{w:.1f}" height="{h:.1f}" rx="{rx}" fill="{fill}" '
                  f'stroke="{border}" stroke-width="1.2"/>')
         if sub:
@@ -337,24 +338,24 @@ class Slide:
             self.text(x + w / 2, y + h / 2 + size * 0.36, title, size, color, 600, "middle", max_width=w - 16)
 
     def decision(self, x, y, w, h, label):
-        """分岐図の判断（「プランがあるか」など）。淡い青の角丸で、処理の四角と見分ける。"""
+        """Decision in a decision diagram ("Has a plan?", etc.). Light blue and rounded, unlike process boxes."""
         self.box(x, y, w, h, label, fill=C.PRIMARY_BG, border=C.PRIMARY, color=C.PRIMARY, rx=h / 2)
 
     def terminal(self, x, y, w, h, label, color=C.SUB, sub=None):
-        """分岐図の終わり（ACK・NACK・終端など）。color で結果の意味を示す。"""
+        """End of a decision diagram (ACK, NACK, done, etc.). color shows what the outcome means."""
         bg = {C.GREEN: C.GREEN_BG, C.ORANGE: C.ORANGE_BG, C.PRIMARY: C.PRIMARY_BG}.get(color, "#F1F5F9")
         self.box(x, y, w, h, label, sub=sub, fill=bg, border=color, color=color if color != C.SUB else C.TEXT,
                  rx=min(h / 2, 14))
 
     def elbow(self, pts, color=C.ARROW, width=2):
-        """折れ線の矢印（終点に先端）。pts = [(x, y), ...]。縦横だけで曲げると読みやすい。
-        最後の区間が 28px 未満だと先端がつぶれて見えるので警告する。ラベルは線の上に重ねず、横に置く。"""
+        """Polyline arrow (head at the end). pts = [(x, y), ...]. Right-angle bends read best.
+        Warns when the last segment is under 28px, which squashes the head. Put labels beside the line, not on it."""
         import math
         d = "M" + " L".join(f"{px:.1f},{py:.1f}" for px, py in pts)
         (ax, ay), (bx, by) = pts[-2], pts[-1]
         if math.hypot(bx - ax, by - ay) < 28:
-            self.warnings.append(f"矢印が短い: ({ax:.0f},{ay:.0f})→({bx:.0f},{by:.0f}) は "
-                                 f"{math.hypot(bx - ax, by - ay):.0f}px。28px 以上にする")
+            self.warnings.append(f"Arrow too short: ({ax:.0f},{ay:.0f})->({bx:.0f},{by:.0f}) is "
+                                 f"{math.hypot(bx - ax, by - ay):.0f}px. Make it at least 28px")
         ang = math.atan2(by - ay, bx - ax)
         h1 = (bx - 7 * math.cos(ang - 0.6), by - 7 * math.sin(ang - 0.6))
         h2 = (bx - 7 * math.cos(ang + 0.6), by - 7 * math.sin(ang + 0.6))
@@ -363,15 +364,15 @@ class Slide:
                  f'stroke-linecap="round" stroke-linejoin="round"/>')
 
     def edge_label(self, x, y, label, color=C.SUB, bg=C.BG):
-        """矢印に添えるラベル（「はい」「いいえ」など）。背景を塗って線と重ならないようにする。y は中心。"""
+        """Label for an arrow ("Yes", "No", etc.) with a background fill so it does not sit on the line. y is the center."""
         w = text_width(label, 12) + 10
         self.raw(f'<rect x="{x - w / 2:.1f}" y="{y - 9:.1f}" width="{w:.1f}" height="18" rx="4" fill="{bg}"/>')
         self.text(x, y + 4.3, label, 12, color, 500, "middle")
 
-    # ---- 模式図・軸・範囲 ----
-    def sketch(self, x, y, w, h, xlabels=(), ylabel=None, note="模式図（実際の値ではない）"):
-        """形を説明するための模式図の枠。戻り値の Sketch に 0〜1 の座標で線や面を描く。
-        実データのグラフではないので、note を必ず表示する。"""
+    # ---- schematics, axes, ranges ----
+    def sketch(self, x, y, w, h, xlabels=(), ylabel=None, note="Schematic (not actual values)"):
+        """Frame for a schematic that explains a shape. Draw lines and areas on the returned Sketch in 0-1 coordinates.
+        It is not a chart of real data, so note is always shown."""
         self.line(x, y, x, y + h, C.ARROW, 1.2)
         self.line(x, y + h, x + w, y + h, C.ARROW, 1.2)
         if ylabel:
@@ -388,11 +389,11 @@ class Slide:
         return Sketch(self, x, y, w, h)
 
     def scale(self, x, w, v0, v1):
-        """値 v0〜v1 を x〜x+w に写す関数を返す（時間に比例した軸などに使う）。"""
+        """Return a function mapping v0-v1 to x-(x+w) (for time-proportional axes, etc.)."""
         return lambda v: x + (v - v0) / (v1 - v0) * w
 
     def band(self, x1, x2, y, h, color, label=None, label_color=None):
-        """時間帯や範囲を示す帯。color は帯の色。label は帯の右に書く。"""
+        """Band showing a time window or range. color is the band color. label goes to the right of the band."""
         bg = {C.GREEN: C.GREEN_BG, C.ORANGE: C.ORANGE_BG, C.PRIMARY: C.PRIMARY_BG}.get(color, "#F1F5F9")
         self.raw(f'<rect x="{x1:.1f}" y="{y:.1f}" width="{max(x2 - x1, 4):.1f}" height="{h}" rx="{min(h / 2, 5)}" '
                  f'fill="{bg}" stroke="{color}" stroke-width="1.2"/>')
@@ -400,7 +401,7 @@ class Slide:
             self.text(x2 + 8, y + h / 2 + 4.3, label, 12, label_color or C.SUB, 500)
 
     def range_bar(self, x, y, w, label, lo, hi, vmax, value, color=C.PRIMARY, label_w=150, value_w=96):
-        """最小〜最大の範囲を示す横棒。y は行の中心。数値を正確に比べるグラフは、グラフ用のライブラリで作る。"""
+        """Horizontal bar from minimum to maximum. y is the row center. Use a charting library for precise comparisons."""
         self.text(x, y + 4.5, label, 12.5, C.TEXT, 400, max_width=label_w - 8)
         tx, tw = x + label_w, w - label_w - value_w
         self.raw(f'<rect x="{tx:.1f}" y="{y - 4:.1f}" width="{tw:.1f}" height="8" rx="4" fill="{C.LINE}"/>')
@@ -409,7 +410,7 @@ class Slide:
         self.text(x + w, y + 4.5, value, 12.5, color if color != C.PRIMARY else C.TEXT, 500, "end")
 
     def chain(self, y, items, h=104, gap=44):
-        """node を横一列に並べ、矢印でつなぐ。items = [(アイコン, 名前, [説明...], 強調色 or None), ...]"""
+        """Nodes in one row joined by arrows. items = [(icon, name, [description...], accent or None), ...]"""
         w, xs = self.columns(len(items), gap)
         for i, (x, (icon, title, sub, accent)) in enumerate(zip(xs, items)):
             self.node(x, y, w, h, icon, title, sub, accent)
@@ -418,9 +419,9 @@ class Slide:
         return w, xs
 
     def flow(self, y, items, h=84, gap=28, pad=16):
-        """矢印でつないだ横並びのボックス。
-        items = [(見出し, [説明 1 行目, 2 行目], 強調色 or None), ...]
-        強調色を渡したボックスは、枠と見出しをその色にする。"""
+        """Boxes in a row joined by arrows.
+        items = [(heading, [description line 1, line 2], accent or None), ...]
+        A box with an accent gets its border and heading in that color."""
         w, xs = self.columns(len(items), gap)
         for i, (x, (title, desc, accent)) in enumerate(zip(xs, items)):
             self.card(x, y, w, h, accent or C.LINE)
@@ -432,20 +433,20 @@ class Slide:
         return w, xs
 
     def bullets(self, x, y, w, items, size=13, step=24):
-        """点付きの箇条書き。y は 1 行目のベースライン。"""
+        """Bullet list. y is the baseline of the first line."""
         for j, item in enumerate(items):
             yy = y + j * step
             self.dot(x + 3, yy - size * 0.35, C.ARROW, 2.5)
             self.text(x + 12, yy, item, size, C.TEXT, max_width=w - 12)
 
     def status(self, x, y, label, color):
-        """丸印と状態のラベル（完了はグリーン、未着手はグレー、対応中はオレンジ）。"""
+        """Dot and status label (green for done, gray for not started, orange for in progress)."""
         self.dot(x + 4, y - 4, color)
         self.text(x + 14, y, label, 12, color, 500)
 
     def table(self, x, y, w, headers, col_x, rows, highlight=(), head_h=30, row_h=31):
-        """表。col_x は各列の左端（表の左端からの距離）。
-        セルは文字列か (文字列, 色, 太さ)。highlight は背景を淡い青にする行の番号。"""
+        """Table. col_x is the left edge of each column (offset from the table's left edge).
+        A cell is a string or (string, color, weight). highlight lists rows with a light blue background."""
         n = len(rows)
         self.card(x, y, w, head_h + row_h * n)
         bounds = list(col_x) + [w]
@@ -463,7 +464,7 @@ class Slide:
                           max_width=bounds[k + 1] - col_x[k] - 12)
 
     def steps(self, x, y, items, step=50):
-        """縦に並ぶ番号付きの手順。items = [(見出し, 説明), ...]。y は 1 つ目の丸の中心。"""
+        """Numbered steps stacked vertically. items = [(heading, description), ...]. y is the center of the first circle."""
         for i, (title, desc) in enumerate(items):
             cy = y + i * step
             self.numbered(x + 12, cy, i + 1)
@@ -472,7 +473,7 @@ class Slide:
             if i < len(items) - 1:
                 self.line(x + 12, cy + 16, x + 12, cy + step - 16, C.LINE, 2)
 
-    # ---- 出力 ----
+    # ---- output ----
     def save(self, path):
         with open(path, "w", encoding="utf-8") as f:
             f.write("\n".join(self.out + ["</svg>"]) + "\n")
@@ -488,7 +489,7 @@ class Slide:
 
 
 class Sketch:
-    """Slide.sketch() が返す模式図。座標は左下が (0, 0)、右上が (1, 1)。"""
+    """Schematic returned by Slide.sketch(). (0, 0) is bottom left, (1, 1) is top right."""
 
     def __init__(self, slide, x, y, w, h):
         self.s, self.x, self.y, self.w, self.h = slide, x, y, w, h
@@ -512,7 +513,7 @@ class Sketch:
 
 
 def render(svg_path, png_path, scale=2):
-    """Chrome 系のブラウザのヘッドレスモードで PNG にする。サイズは SVG の width/height から読む。"""
+    """Render to PNG with a headless Chrome-family browser. The size is read from the SVG width/height."""
     head = open(svg_path, encoding="utf-8").read(2000)
     w = int(float(re.search(r'width="([\d.]+)"', head).group(1)))
     h = int(float(re.search(r'height="([\d.]+)"', head).group(1)))
@@ -527,11 +528,11 @@ def render(svg_path, png_path, scale=2):
 
 
 def catalog(png_path):
-    """全アイコンの一覧を PNG にする。アイコンを足したり直したりしたら、これで形を確かめる。"""
+    """Render all icons to a PNG. Check shapes with this after adding or changing an icon."""
     names = list(ICONS)
     cols = 7
     rows = (len(names) + cols - 1) // cols
-    s = Slide("アイコン一覧", "svgparts のアイコン一覧", width=cols * 120 + 48, height=rows * 96 + 48)
+    s = Slide("Icon catalog", "Catalog of svgparts icons", width=cols * 120 + 48, height=rows * 96 + 48)
     for i, name in enumerate(names):
         x = 24 + (i % cols) * 120
         y = 24 + (i // cols) * 96
