@@ -11,7 +11,6 @@ from svgparts import Slide, C  # noqa: E402
 
 
 def done(s, name):
-    s.save(os.path.join(HERE, f"{name}.svg"))
     print(s.render(os.path.join(HERE, f"{name}.png")))
 
 

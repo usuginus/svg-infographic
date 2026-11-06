@@ -1,0 +1,27 @@
+name: test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  unittest:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install Japanese fonts
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends fonts-noto-cjk
+      - name: Run tests
+        env:
+          # Ubuntu 24.04 blocks the Chrome sandbox for unprivileged users.
+          SVGPARTS_CHROME_ARGS: --no-sandbox
+        run: |
+          google-chrome --version
+          python3 -m unittest discover -s tests -v
